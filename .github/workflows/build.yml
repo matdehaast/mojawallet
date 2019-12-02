@@ -20,9 +20,8 @@ jobs:
         node-version: [10.x, 12.x]
 
     steps:
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '2.x'
+      - name: Install python and build stuff
+        run: sudo apt-get install -y build-essential python
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
