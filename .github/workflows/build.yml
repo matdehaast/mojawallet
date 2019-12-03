@@ -15,28 +15,19 @@ jobs:
         node-version: [12.9]
 
     steps:
-      - name: Install python and build stuff
-        run: sudo apt-get install -y build-essential python
       - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: install
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: install
-      - name: lint
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: lint:all
-      - name: build
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: build
-      - name: test
-        uses: borales/actions-yarn@v2.0.0
-        with:
-          cmd: test
+      - run: yarn install
+      - run: yarn lint
+      - run: yarn lint:all
+      - run: yarn build
+      - run: yarn test
         env:
           CI: true
