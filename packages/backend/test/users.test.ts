@@ -3,9 +3,9 @@ import axios from 'axios'
 import bcrypt from 'bcrypt'
 import createLogger from 'pino'
 import { Server } from 'http'
-import { User } from '../src/models/user'
 import { KnexAccountService } from '../src/services/accounts-service'
 import { KnexTransactionService } from '../src/services/transactions-service'
+import { KnexUserService } from '../src/services/user-service'
 import { createApp } from '../src/app'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
 import { TokenService } from '../src/services/token-service'
@@ -18,6 +18,7 @@ describe('Users Service', function () {
   let knex: Knex
   let accountsService: KnexAccountService
   let transactionsService: KnexTransactionService
+  let userService: KnexUserService
   let hydraApi: HydraApi
   let tokenService: TokenService
 
@@ -30,6 +31,7 @@ describe('Users Service', function () {
     })
     accountsService = new KnexAccountService(knex)
     transactionsService = new KnexTransactionService(knex)
+    userService = new KnexUserService(knex)
     tokenService = new TokenService({
       clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
       clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
@@ -58,13 +60,15 @@ describe('Users Service', function () {
         }
       }
     } as HydraApi
-
+    const logger = createLogger()
+    logger.level = 'trace'
     app = createApp({
       accountsService,
       transactionsService,
-      logger: createLogger(),
+      logger,
       tokenService,
-      hydraApi
+      hydraApi,
+      userService
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -85,165 +89,194 @@ describe('Users Service', function () {
     knex.destroy()
   })
 
-  describe('create', function () {
-    test('creates a user', async () => {
-      const { data } = await axios.post<User>(`http://localhost:${port}/users`, { username: 'alice', password: 'test' })
-
-      const retrievedUser = await User.query().where('userName', 'alice').first()
-      expect(retrievedUser).toBeInstanceOf(User)
-      expect(retrievedUser!.username).toEqual('alice')
-
-      expect(data.username).toEqual('alice')
+  describe('store', function () {
+    test('stores a user', async () => {
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        username: '+27844444444',
+        password: 'test'
+      }).then(resp => {
+        expect(resp.status).toEqual(200)
+        return resp.data
+      })
+      expect(response.username).toEqual('+27844444444')
     })
 
-    test('does not return password', async () => {
-      const { data } = await axios.post<User>(`http://localhost:${port}/users`, { username: 'alice', password: 'test' })
-
-      expect(data.password).toBeUndefined()
+    test('throws invalid phonenumber', async () => {
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        username: 'alice',
+        password: 'test'
+      }).then(resp => {
+        return resp.data
+      }).catch(error => {
+        expect(error.response.status).toEqual(400)
+        expect(error.response.data).toEqual('Invalid phonenumber.')
+        return error
+      })
+      expect(response.username).toBeUndefined()
     })
 
     test('hashes the password', async () => {
-      const { data } = await axios.post<User>(`http://localhost:${port}/users`, { username: 'alice', password: 'test' })
-
-      expect(data.password).not.toEqual('test')
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        username: '+27844444444',
+        password: 'test'
+      }).then(resp => {
+        return resp.data
+      })
+      expect(response.password).not.toEqual('test')
     })
 
     test('userName is required', async () => {
-      try {
-        await axios.post<User>(`http://localhost:${port}/users`, { password: 'test' })
-      } catch (error) {
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        password: 'test'
+      }).then(resp => {
+        return resp.data
+      }).catch(error => {
         expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('child "username" fails because ["username" is required]')
-        return
-      }
-
-      fail()
+        expect(error.response.data).toEqual('"username" is required')
+        return error
+      })
+      expect(response.username).toBeUndefined()
     })
 
     test('password is required', async () => {
-      try {
-        await axios.post<User>(`http://localhost:${port}/users`, { username: 'bob' })
-      } catch (error) {
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        username: '+27844444444'
+      }).then(resp => {
+        return resp.data
+      }).catch(error => {
         expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('child "password" fails because ["password" is required]')
-        return
-      }
-
-      fail()
+        expect(error.response.data).toEqual('"password" is required')
+        return error
+      })
+      expect(response.username).toBeUndefined()
     })
 
     test('userName must be unique', async () => {
-      await User.query().insert({ username: 'alice' })
-
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        username: '+27844444444',
+        password: 'test'
+      }).then(resp => {
+        expect(resp.status).toEqual(200)
+        return resp.data
+      })
+      expect(response.username).toEqual('+27844444444')
       try {
-        await axios.post<User>(`http://localhost:${port}/users`, { username: 'alice', password: 'test' })
+        await axios.post(`http://localhost:${port}/users`, {
+          username: '+27844444444',
+          password: 'test'
+        })
       } catch (error) {
         expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('Username is already taken.')
-        return
+        expect(error.response.data).toEqual('A user with this username already exists.')
       }
-
-      fail()
     })
   })
 
   describe('Edit', function () {
     test('hashes the new password', async () => {
-      const user = await User.query().insertAndFetch({ username: 'alice', password: 'oldPassword' })
-
-      await axios.patch(`http://localhost:${port}/users/${user.id}`, { password: 'newPassword' })
-
-      const updatedUser = await user.$query()
+      const user = await axios.post(`http://localhost:${port}/users`, {
+        username: '+27844444444',
+        password: 'oldPassword'
+      }, {
+        headers: {
+          authorization: 'Bearer usersServiceToken'
+        }
+      }).then(resp => {
+        expect(resp.status).toEqual(200)
+        return resp.data
+      })
+      expect(user.username).toEqual('+27844444444')
+      let updatedUser = await axios.patch(`http://localhost:${port}/users`, {
+        username: '+27844444444',
+        password: 'newPassword'
+      }, {
+        headers: {
+          authorization: 'Bearer usersServiceToken'
+        }
+      }).then(resp => {
+        expect(resp.status).toEqual(200)
+        return resp.data
+      })
       expect(updatedUser.password).not.toEqual('oldPassword')
       expect(updatedUser.password).not.toEqual('newPassword')
       expect(bcrypt.compare('newPassword', updatedUser.password)).toBeTruthy()
     })
-
-    test('can set the default account id', async () => {
-      const user = await User.query().insertAndFetch({ username: 'alice', password: 'oldPassword' })
-
-      await axios.patch(`http://localhost:${port}/users/${user.id}`, { defaultAccountId: '1' })
-
-      const updatedUser = await user.$query()
-      expect(updatedUser.defaultAccountId).toEqual('1')
-      expect(bcrypt.compare('oldPassword', updatedUser.password)).toBeTruthy()
-    })
   })
 
-  describe('Show', function () {
-    test('returns user if there token is valid', async () => {
-      const user = await User.query().insertAndFetch({ username: 'alice' })
-      hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
-        if (token === 'validToken') {
-          return {
-            active: true,
-            scope: 'offline openid',
-            sub: user.id.toString(),
-            token_type: 'access_token'
-          }
-        }
+//   describe('Show', function () {
+//     test('returns user if there token is valid', async () => {
+//       const user = await User.query().insertAndFetch({ username: 'alice' })
+//       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
+//         if (token === 'validToken') {
+//           return {
+//             active: true,
+//             scope: 'offline openid',
+//             sub: user.id.toString(),
+//             token_type: 'access_token'
+//           }
+//         }
 
-        return {
-          active: false
-        }
-      })
+//         return {
+//           active: false
+//         }
+//       })
 
-      const { data } = await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer validToken' } })
+//       const { data } = await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer validToken' } })
 
-      expect(data).toEqual(user.$formatJson())
-      expect(data.password).toBeUndefined()
-    })
+//       expect(data).toEqual(user.$formatJson())
+//       expect(data.password).toBeUndefined()
+//     })
 
-    test('returns 401 if there is no token', async () => {
-      hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
-        if (token === 'validToken') {
-          return {
-            active: true,
-            scope: 'offline openid',
-            sub: '1',
-            token_type: 'access_token'
-          }
-        }
+//     test('returns 401 if there is no token', async () => {
+//       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
+//         if (token === 'validToken') {
+//           return {
+//             active: true,
+//             scope: 'offline openid',
+//             sub: '1',
+//             token_type: 'access_token'
+//           }
+//         }
 
-        return {
-          active: false
-        }
-      })
+//         return {
+//           active: false
+//         }
+//       })
 
-      try {
-        await axios.get(`http://localhost:${port}/users/me`)
-      } catch (error) {
-        expect(error.response.status).toEqual(401)
-        return
-      }
+//       try {
+//         await axios.get(`http://localhost:${port}/users/me`)
+//       } catch (error) {
+//         expect(error.response.status).toEqual(401)
+//         return
+//       }
 
-      fail()
-    })
+//       fail()
+//     })
 
-    test('returns 401 if token is invalid', async () => {
-      hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
-        if (token === 'validToken') {
-          return {
-            active: true,
-            scope: 'offline openid',
-            sub: '1',
-            token_type: 'access_token'
-          }
-        }
+//     test('returns 401 if token is invalid', async () => {
+//       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
+//         if (token === 'validToken') {
+//           return {
+//             active: true,
+//             scope: 'offline openid',
+//             sub: '1',
+//             token_type: 'access_token'
+//           }
+//         }
 
-        return {
-          active: false
-        }
-      })
+//         return {
+//           active: false
+//         }
+//       })
 
-      try {
-        await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer invalidToken' } })
-      } catch (error) {
-        expect(error.response.status).toEqual(401)
-        return
-      }
+//       try {
+//         await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer invalidToken' } })
+//       } catch (error) {
+//         expect(error.response.status).toEqual(401)
+//         return
+//       }
 
-      fail()
-    })
-  })
+//       fail()
+//     })
+//   })
 })

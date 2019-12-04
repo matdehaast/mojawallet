@@ -4,6 +4,7 @@ import { createApp } from '../src/app'
 import { Server } from 'http'
 import { KnexAccountService } from '../src/services/accounts-service'
 import { KnexTransactionService } from '../src/services/transactions-service'
+import { KnexUserService } from '../src/services/user-service'
 import createLogger from 'pino'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
 import Knex = require('knex')
@@ -16,6 +17,7 @@ describe('Accounts API Test', () => {
   let knex: Knex
   let accountsService: KnexAccountService
   let transactionsService: KnexTransactionService
+  let userService: KnexUserService
   let hydraApi: HydraApi
   let tokenService: TokenService
 
@@ -28,6 +30,7 @@ describe('Accounts API Test', () => {
     })
     accountsService = new KnexAccountService(knex)
     transactionsService = new KnexTransactionService(knex)
+    userService = new KnexUserService(knex)
     tokenService = new TokenService({
       clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
       clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
@@ -62,7 +65,8 @@ describe('Accounts API Test', () => {
       transactionsService,
       logger: createLogger(),
       hydraApi,
-      tokenService
+      tokenService,
+      userService
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

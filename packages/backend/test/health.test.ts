@@ -25,7 +25,8 @@ describe('Health API Test', () => {
       accountsService: {} as any,
       hydraApi: {} as any,
       transactionsService: {} as any,
-      tokenService
+      tokenService,
+      userService: {} as any
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
