@@ -7,8 +7,8 @@ import { KnexTransactionService } from '../src/services/transactions-service'
 import { KnexUserService } from '../src/services/user-service'
 import createLogger from 'pino'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
-import Knex = require('knex')
 import { TokenService } from '../src/services/token-service'
+import Knex = require('knex')
 
 describe('Accounts API Test', () => {
   let server: Server
@@ -131,7 +131,7 @@ describe('Accounts API Test', () => {
     })
 
     it('User can update their own account', async () => {
-      const response = await axios.patch(`http://localhost:${port}/accounts/${account.id}`, {
+      await axios.patch(`http://localhost:${port}/accounts/${account.id}`, {
         name: 'new test'
       }, {
         headers: {

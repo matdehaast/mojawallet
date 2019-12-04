@@ -21,8 +21,9 @@ interface UserService {
 }
 
 export class KnexUserService implements UserService {
-  constructor (private _knex: Knex) {
-
+  private _knex: Knex
+  constructor (knex: Knex) {
+    this._knex = knex
   }
 
   async store (user: UserProps): Promise<User> {
@@ -31,13 +32,13 @@ export class KnexUserService implements UserService {
         username: user.username,
         password: user.password
       }).then(result => result[0])
-  
+
       const insertedUser = await this._knex<User>('users').where('id', insertedUserId).first()
-  
+
       if (!insertedUser) {
         throw new Error('Error inserting account into database')
       }
-  
+
       return insertedUser
     } catch (error) {
       if (error.errno === 19 && error.code === 'SQLITE_CONSTRAINT') throw new Error('A user with this username already exists.')
@@ -58,21 +59,21 @@ export class KnexUserService implements UserService {
     return updatedUser
   }
 
-//   async get (id: string): Promise<User> {
-//     const account = await this._knex<User>('users').where('id', id).first()
+  //   async get (id: string): Promise<User> {
+  //     const account = await this._knex<User>('users').where('id', id).first()
 
-//     if (!account) {
-//       throw new Error('Error inserting account into database')
-//     }
-//     return dbAccountToAccount(account)
-//   }
+  //     if (!account) {
+  //       throw new Error('Error inserting account into database')
+  //     }
+  //     return dbAccountToAccount(account)
+  //   }
 
-//   async delete (id: string): Promise<void> {
-//     return undefined
-//   }
+  //   async delete (id: string): Promise<void> {
+  //     return undefined
+  //   }
 
-//   async getByUserId (userId: string): Promise<Array<Account>> {
-//     const accounts = await this._knex<DatabaseAccount>('accounts').where({ userId })
+  //   async getByUserId (userId: string): Promise<Array<Account>> {
+  //     const accounts = await this._knex<DatabaseAccount>('accounts').where({ userId })
 
 //     return accounts.map(account => {
 //       return dbAccountToAccount(account)

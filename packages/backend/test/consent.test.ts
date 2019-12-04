@@ -10,10 +10,8 @@ import { KnexTransactionService } from '../src/services/transactions-service'
 import { accounts } from '../src/services/user-accounts-service'
 import { getAgreementUrlFromScopes } from '../src/controllers/consent'
 import { TokenService } from '../src/services/token-service'
-import { User } from '../src/models/user'
 
 describe('Consent', function () {
-  let user: User
   let knex: Knex
   let accountsService: KnexAccountService
   let transactionsService: KnexTransactionService

@@ -186,7 +186,7 @@ describe('Users Service', function () {
         return resp.data
       })
       expect(user.username).toEqual('+27844444444')
-      let updatedUser = await axios.patch(`http://localhost:${port}/users`, {
+      const updatedUser = await axios.patch(`http://localhost:${port}/users`, {
         username: '+27844444444',
         password: 'newPassword'
       }, {
@@ -203,78 +203,78 @@ describe('Users Service', function () {
     })
   })
 
-//   describe('Show', function () {
-//     test('returns user if there token is valid', async () => {
-//       const user = await User.query().insertAndFetch({ username: 'alice' })
-//       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
-//         if (token === 'validToken') {
-//           return {
-//             active: true,
-//             scope: 'offline openid',
-//             sub: user.id.toString(),
-//             token_type: 'access_token'
-//           }
-//         }
+  //   describe('Show', function () {
+  //     test('returns user if there token is valid', async () => {
+  //       const user = await User.query().insertAndFetch({ username: 'alice' })
+  //       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
+  //         if (token === 'validToken') {
+  //           return {
+  //             active: true,
+  //             scope: 'offline openid',
+  //             sub: user.id.toString(),
+  //             token_type: 'access_token'
+  //           }
+  //         }
 
-//         return {
-//           active: false
-//         }
-//       })
+  //         return {
+  //           active: false
+  //         }
+  //       })
 
-//       const { data } = await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer validToken' } })
+  //       const { data } = await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer validToken' } })
 
-//       expect(data).toEqual(user.$formatJson())
-//       expect(data.password).toBeUndefined()
-//     })
+  //       expect(data).toEqual(user.$formatJson())
+  //       expect(data.password).toBeUndefined()
+  //     })
 
-//     test('returns 401 if there is no token', async () => {
-//       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
-//         if (token === 'validToken') {
-//           return {
-//             active: true,
-//             scope: 'offline openid',
-//             sub: '1',
-//             token_type: 'access_token'
-//           }
-//         }
+  //     test('returns 401 if there is no token', async () => {
+  //       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
+  //         if (token === 'validToken') {
+  //           return {
+  //             active: true,
+  //             scope: 'offline openid',
+  //             sub: '1',
+  //             token_type: 'access_token'
+  //           }
+  //         }
 
-//         return {
-//           active: false
-//         }
-//       })
+  //         return {
+  //           active: false
+  //         }
+  //       })
 
-//       try {
-//         await axios.get(`http://localhost:${port}/users/me`)
-//       } catch (error) {
-//         expect(error.response.status).toEqual(401)
-//         return
-//       }
+  //       try {
+  //         await axios.get(`http://localhost:${port}/users/me`)
+  //       } catch (error) {
+  //         expect(error.response.status).toEqual(401)
+  //         return
+  //       }
 
-//       fail()
-//     })
+  //       fail()
+  //     })
 
-//     test('returns 401 if token is invalid', async () => {
-//       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
-//         if (token === 'validToken') {
-//           return {
-//             active: true,
-//             scope: 'offline openid',
-//             sub: '1',
-//             token_type: 'access_token'
-//           }
-//         }
+  //     test('returns 401 if token is invalid', async () => {
+  //       hydraApi.introspectToken = jest.fn().mockImplementation(async (token: string) => {
+  //         if (token === 'validToken') {
+  //           return {
+  //             active: true,
+  //             scope: 'offline openid',
+  //             sub: '1',
+  //             token_type: 'access_token'
+  //           }
+  //         }
 
-//         return {
-//           active: false
-//         }
-//       })
+  //         return {
+  //           active: false
+  //         }
+  //       })
 
-//       try {
-//         await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer invalidToken' } })
-//       } catch (error) {
-//         expect(error.response.status).toEqual(401)
-//         return
-//       }
+  //       try {
+  //         await axios.get(`http://localhost:${port}/users/me`, { headers: { authorization: 'Bearer invalidToken' } })
+  //       } catch (error) {
+  //         expect(error.response.status).toEqual(401)
+  //         return
+  //       }
 
 //       fail()
 //     })

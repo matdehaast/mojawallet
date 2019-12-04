@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import { Config, Joi } from 'koa-joi-router'
 import { AccountsAppContext } from '..'
-import { User, UserProps } from '../services/user-service'
+import { UserProps } from '../services/user-service'
 import { parseNumber, isValidNumber } from 'libphonenumber-js'
 
 export async function show (ctx: AccountsAppContext): Promise<void> {
