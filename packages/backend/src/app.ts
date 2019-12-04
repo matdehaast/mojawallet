@@ -17,12 +17,14 @@ import { HydraApi } from './apis/hydra'
 import { createAuthMiddleware } from './middleware/auth'
 import cors from '@koa/cors'
 import { TokenService } from './services/token-service'
+import { KnexUserService } from './services/user-service'
 
 export type AppConfig = {
   logger: Logger;
   accountsService: KnexAccountService;
   transactionsService: KnexTransactionService;
   hydraApi: HydraApi;
+  userService: KnexUserService;
   tokenService: TokenService;
 }
 
@@ -38,6 +40,7 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
     ctx.transactions = appConfig.transactionsService
     ctx.logger = appConfig.logger
     ctx.tokenService = appConfig.tokenService
+    ctx.users = appConfig.userService
     await next()
   })
 
@@ -58,8 +61,8 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
 
   privateRouter.post('/faucet', createFaucet)
 
-  privateRouter.post('/users', createValidationUser, storeUser)
-  privateRouter.patch('/users/:id', updateUser)
+  publicRouter.post('/users', storeUser)
+  privateRouter.patch('/users', updateUser)
   privateRouter.get('/users/me', createAuthMiddleware(appConfig.hydraApi), showUser)
 
   privateRouter.get('/login', getValidationLogin, showLogin)
