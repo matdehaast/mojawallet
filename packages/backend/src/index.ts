@@ -8,6 +8,7 @@ import createLogger, { Logger } from 'pino'
 import { createApp } from './app'
 import { TokenService } from './services/token-service'
 import Knex = require('knex')
+import { KnexTransactionRequestService } from './services/transaction-request-service'
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
@@ -17,6 +18,7 @@ const KNEX_CLIENT = process.env.KNEX_CLIENT || 'sqlite3'
 export interface AccountsAppContext extends Context {
   accounts: KnexAccountService;
   transactions: KnexTransactionService;
+  transactionRequests: KnexTransactionRequestService;
   tokenService: TokenService;
   logger: Logger;
 }
@@ -39,6 +41,7 @@ const knex = KNEX_CLIENT === 'mysql' ? Knex({
 const accountsService = new KnexAccountService(knex)
 const transactionsService = new KnexTransactionService(knex)
 const userService = new KnexUserService(knex)
+const transactionRequestService = new KnexTransactionRequestService(knex)
 
 const tokenService = new TokenService({
   clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
@@ -53,7 +56,8 @@ const app = createApp({
   logger,
   hydraApi,
   tokenService,
-  userService
+  userService,
+  transactionRequestService
 })
 
 let server: Server
