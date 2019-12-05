@@ -2,64 +2,68 @@ import { TransactionRequest, TransactionRequestTools, KnexTransactionRequestServ
 import Knex from 'knex'
 
 describe('Transaction Request Tests', () => {
+  let validRequest: TransactionRequest
+  let invalidRequest: TransactionRequest
+  beforeAll(async () => {
+    validRequest = {
+      transactionRequestId: 'ca919568-e559-42a8-b763-1be22179decc',
+      payee: {
+        partyIdInfo: {
+          partyIdType: 'MSISDN',
+          partyIdentifier: 'party1'
+        }
+      },
+      payer: {
+        partyIdInfo: {
+          partyIdType: 'MSISDN',
+          partyIdentifier: 'party2'
+        }
+      },
+      amount: {
+        currency: 'USD',
+        amount: '20'
+      },
+      transactionType: {
+        scenario: 'DEPOSIT' ,
+        initiator: 'PAYER',
+        initiatorType: 'CONSUMER'
+      }
+    }
+    invalidRequest = {
+      transactionRequestId: 'ca919568-e559-42a8763-1be22179decc',
+      payee: {
+        partyIdInfo: {
+          partyIdType: 'MSISDN',
+          partyIdentifier: 'party1'
+        }
+      },
+      payer: {
+        partyIdInfo: {
+          partyIdType: 'MSISDN',
+          partyIdentifier: 'party2'
+        }
+      },
+      amount: {
+        currency: 'USD',
+        amount: '20'
+      },
+      transactionType: {
+        scenario: 'DEPOSIT' ,
+        initiator: 'PAYER',
+        initiatorType: 'CONSUMER'
+      }
+    }
+  })
 
   describe('Validate a transaction request', () => {
 
     it('Should identify a valid transaction request', async () => {
-      const validRequest: TransactionRequest = {
-        transactionRequestId: 'ca919568-e559-42a8-b763-1be22179decc',
-        payee: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party1'
-          }
-        },
-        payer: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party2'
-          }
-        },
-        amount: {
-          currency: 'USD',
-          amount: '20'
-        },
-        transactionType: {
-          scenario: 'DEPOSIT' ,
-          initiator: 'PAYER',
-          initiatorType: 'CONSUMER'
-        }
-      }
 
       const myRequest = new TransactionRequestTools(validRequest)
       expect(myRequest.getValidStatus()).toEqual(true)
     })
 
     it('Should identify an invalid transaction request', async () => {
-      const invalidRequest: TransactionRequest = {
-        transactionRequestId: 'ca919568-e559-42a8-b763-1be22179decc',
-        payee: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party1'
-          }
-        },
-        payer: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party2'
-          }
-        },
-        amount: {
-          currency: 'bad currency',
-          amount: '20'
-        },
-        transactionType: {
-          scenario: 'DEPOSIT' ,
-          initiator: 'PAYER',
-          initiatorType: 'CONSUMER'
-        }
-      }
 
       const myRequest = new TransactionRequestTools(invalidRequest)
       expect(myRequest.getValidStatus()).toEqual(false)
@@ -69,8 +73,6 @@ describe('Transaction Request Tests', () => {
   describe('Receiving and retrieving a transaction request', () => {
     let knex: Knex
     let transactionRequestService: KnexTransactionRequestService
-    let validRequest: TransactionRequest
-    let invalidRequest: TransactionRequest
   
     beforeAll(async () => {
       knex = Knex({
@@ -80,55 +82,6 @@ describe('Transaction Request Tests', () => {
           supportBigNumbers: true
         }
       })
-
-      validRequest = {
-        transactionRequestId: 'ca919568-e559-42a8-b763-1be22179decc',
-        payee: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party1'
-          }
-        },
-        payer: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party2'
-          }
-        },
-        amount: {
-          currency: 'USD',
-          amount: '20'
-        },
-        transactionType: {
-          scenario: 'DEPOSIT' ,
-          initiator: 'PAYER',
-          initiatorType: 'CONSUMER'
-        }
-      }
-      invalidRequest = {
-        transactionRequestId: 'ca919568-e559-42a8763-1be22179decc',
-        payee: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party1'
-          }
-        },
-        payer: {
-          partyIdInfo: {
-            partyIdType: 'MSISDN',
-            partyIdentifier: 'party2'
-          }
-        },
-        amount: {
-          currency: 'USD',
-          amount: '20'
-        },
-        transactionType: {
-          scenario: 'DEPOSIT' ,
-          initiator: 'PAYER',
-          initiatorType: 'CONSUMER'
-        }
-      }
   
       transactionRequestService = new KnexTransactionRequestService(knex)
     })
@@ -181,12 +134,6 @@ describe('Transaction Request Tests', () => {
       const retrievedRequest = await transactionRequestService.getByRequestId("non-existantid")
 
       expect(retrievedRequest).toBe(undefined)
-    })
-  })
-
-  describe('Responding to a transaction request', () => {
-
-    it('Should put a response to the client to inform that the request was received', async () => {
     })
   })
 })

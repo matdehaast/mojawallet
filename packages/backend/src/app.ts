@@ -12,17 +12,20 @@ import { getValidation as getValidationLogin, show as showLogin, createValidatio
 import { store as storeLogout } from './controllers/logout'
 import { getValidation as getValidationConsent, show as showConsent, storeValidation as storeValidationConsent, store as storeConsent } from './controllers/consent'
 import { createValidation as createValidationOauth2, store as storeOauth2 } from './controllers/oauth2Client'
+import { create as createTransactionRequest } from './controllers/transactionRequest'
 import { AccountsAppContext } from './index'
 import { HydraApi } from './apis/hydra'
 import { createAuthMiddleware } from './middleware/auth'
 import cors from '@koa/cors'
 import { TokenService } from './services/token-service'
 import { KnexUserService } from './services/user-service'
+import { KnexTransactionRequestService } from './services/transaction-request-service'
 
 export type AppConfig = {
   logger: Logger;
   accountsService: KnexAccountService;
   transactionsService: KnexTransactionService;
+  transactionRequestService: KnexTransactionRequestService;
   hydraApi: HydraApi;
   userService: KnexUserService;
   tokenService: TokenService;
@@ -41,6 +44,7 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
     ctx.logger = appConfig.logger
     ctx.tokenService = appConfig.tokenService
     ctx.users = appConfig.userService
+    ctx.transactionRequests = appConfig.transactionRequestService
     await next()
   })
 
@@ -48,6 +52,8 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
   publicRouter.get('/healthz', (ctx) => {
     ctx.status = 200
   })
+
+  publicRouter.post('/transactionRequests', createTransactionRequest)
 
   privateRouter.use(createAuthMiddleware(appConfig.hydraApi))
   privateRouter.get('/accounts/:id', showAccount)

@@ -1,4 +1,4 @@
-import Joi, { ValidationResult } from 'joi'
+import Joi, { ValidationResult, Extension } from 'joi'
 import Knex from 'knex'
 
 export type RequestId = string;
@@ -44,7 +44,7 @@ export type AuthenticationType = 'OTP' | 'QRCODE';
 export type DateTime = string;
 export type MojaExtension = {
   extensionKey: string;
-  extensionVAlue: string;
+  extensionValue: string;
 }
 export type ExtensionList = MojaExtension[];
 
@@ -189,7 +189,6 @@ export class KnexTransactionRequestService {
       }
       return (insertedRequest[0])
     } catch (error) {
-      console.log('Error generating or inserting request:', error)
       throw new Error('Error inserting request')
     }
   }
