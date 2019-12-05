@@ -1,4 +1,4 @@
-import Joi, { ValidationResult, Extension } from 'joi'
+import Joi, { ValidationResult } from 'joi'
 import Knex from 'knex'
 
 export type RequestId = string;
@@ -26,7 +26,7 @@ export type Money = {
 }
 export type TransactionType = {
   scenario: 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'PAYMENT' | 'REFUND';
-  subScenario?: string | number; 
+  subScenario?: string | number;
   initiator: 'PAYER' | 'PAYEE';
   initiatorType: 'CONSUMER' | 'AGENT' | 'BUSINESS' | 'DEVICE';
   refundInfo?: {
@@ -74,14 +74,14 @@ export class TransactionRequestTools {
 
   constructor (postedObject: object) {
     if (this.isValid(postedObject).error) {
-      this._valid = false;
+      this._valid = false
     } else {
       this._transactionRequest = postedObject as TransactionRequest
       this._valid = true
     }
   }
 
-  private isValid(untestedOb: object): ValidationResult<object> {
+  private isValid (untestedOb: object): ValidationResult<object> {
     const uuidSchema = Joi.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
 
     const partySchema = Joi.object({
@@ -152,54 +152,50 @@ export class TransactionRequestTools {
     return (Joi.validate(untestedOb, requestSchema))
   }
 
-  getValidStatus(): boolean {
+  getValidStatus (): boolean {
     return (this._valid)
   }
 
-  getSerializedRequest(): string {
+  getSerializedRequest (): string {
     try {
       return (JSON.stringify(this._transactionRequest))
     } catch (error) {
-      throw new Error ('Invalid request')
+      throw new Error('Invalid request')
     }
   }
 
-  getRequestId(): string{
+  getRequestId (): string {
     try {
       return (this._transactionRequest.transactionRequestId)
     } catch (error) {
-      throw new Error ('Invalid request')
+      throw new Error('Invalid request')
     }
   }
 }
 
 export class KnexTransactionRequestService {
-  constructor (private _knex: Knex) {}
+  private _knex: Knex
+  constructor (knex: Knex) {
+    this._knex = knex
+  }
 
-  async create(transactionRequest: TransactionRequest): Promise<StoredRequest> {
-    try {
-      const transactionRequestTools = new TransactionRequestTools(transactionRequest)
-      const insertedRequest = await this._knex<StoredRequest>('mojatransaction_request').insert({
-        transactionRequestId: transactionRequestTools.getRequestId(),
-        serializedRequest: transactionRequestTools.getSerializedRequest(),
-        valid: transactionRequestTools.getValidStatus()
-      }).returning(['id', 'transactionRequestId', 'serializedRequest', 'valid']) //returning not supported by sqlite3
-      if (!insertedRequest) {
-        throw new Error('Inserted request returned null')
-      }
-      return (insertedRequest[0])
-    } catch (error) {
-      throw new Error('Error inserting request')
+  async create (transactionRequest: TransactionRequest): Promise<StoredRequest> {
+    const transactionRequestTools = new TransactionRequestTools(transactionRequest)
+    const insertedRequest = await this._knex<StoredRequest>('mojatransaction_request').insert({
+      transactionRequestId: transactionRequestTools.getRequestId(),
+      serializedRequest: transactionRequestTools.getSerializedRequest(),
+      valid: transactionRequestTools.getValidStatus()
+    }).returning(['id', 'transactionRequestId', 'serializedRequest', 'valid']) // returning not supported by sqlite3
+    if (!insertedRequest) {
+      throw new Error('Inserted request returned null')
     }
+    return (insertedRequest[0])
   }
 
   async getByRequestId (requestId: string): Promise<StoredRequest | undefined> {
-    try {
-      const retrievedRequest = await this._knex<StoredRequest>('mojatransaction_request').where({transactionrequestId: requestId}).first()
-      return (retrievedRequest)
-    } catch (error) {
-      throw error
-    }
+    const retrievedRequest = await this._knex<StoredRequest>('mojatransaction_request')
+      .where({ transactionrequestId: requestId })
+      .first()
+    return (retrievedRequest)
   }
 }
-

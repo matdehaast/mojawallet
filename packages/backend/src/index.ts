@@ -2,13 +2,13 @@ import { Context } from 'koa'
 import { KnexAccountService } from './services/accounts-service'
 import { KnexTransactionService } from './services/transactions-service'
 import { KnexUserService } from './services/user-service'
+import { KnexTransactionRequestService } from './services/transaction-request-service'
 import { Server } from 'http'
 import { hydraApi } from './apis/hydra'
 import createLogger, { Logger } from 'pino'
 import { createApp } from './app'
 import { TokenService } from './services/token-service'
 import Knex = require('knex')
-import { KnexTransactionRequestService } from './services/transaction-request-service'
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
