@@ -98,10 +98,10 @@ describe('Transaction Request Tests', () => {
       await knex.destroy()
     })
 
-    test('Should serialize and write a valid request to mojatransaction_request table', async () => {
+    test('Should serialize and write a valid request to mojaTransactionRequest table', async () => {
 
       await transactionRequestService.create(validRequest)
-      const storedRequest = await knex('mojatransaction_request').first()
+      const storedRequest = await knex('mojaTransactionRequest').first()
       let serializedRequest = JSON.stringify(validRequest)
 
       expect(storedRequest.transactionRequestId).toEqual(validRequest.transactionRequestId)
@@ -109,7 +109,7 @@ describe('Transaction Request Tests', () => {
       expect(storedRequest.valid).toEqual(1)
     })
 
-    test('Should fail to serialize and write an invalid request to mojatransaction_request table', async () => {
+    test('Should fail to serialize and write an invalid request to mojaTransactionRequest table', async () => {
 
       const myTest = async () => { await transactionRequestService.create(invalidRequest) }
 

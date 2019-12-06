@@ -1,5 +1,5 @@
 import { AccountsAppContext } from '../index'
-import { requestResponseApi } from '../apis/requestResponses'
+import { mojaResponseService } from '../services/mojaResponseService'
 
 export async function create (ctx: AccountsAppContext): Promise<void> {
   const { transactionRequests } = ctx
@@ -7,7 +7,7 @@ export async function create (ctx: AccountsAppContext): Promise<void> {
 
   try {
     await transactionRequests.create(body)
-    requestResponseApi.putResponse(
+    mojaResponseService.putResponse(
       {
         transactionRequestState: 'RECEIVED'
       },
@@ -15,7 +15,7 @@ export async function create (ctx: AccountsAppContext): Promise<void> {
     )
     ctx.status = 200
   } catch (error) {
-    requestResponseApi.putErrorResponse(
+    mojaResponseService.putErrorResponse(
       {
         errorInformation: {
           errorCode: '3100',

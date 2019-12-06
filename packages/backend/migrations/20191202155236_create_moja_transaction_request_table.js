@@ -1,7 +1,7 @@
 
 exports.up = function(knex) {
   return knex.schema
-    .createTable('mojatransaction_request', function (table) {
+    .createTable('mojaTransactionRequest', function (table) {
        table.increments('id').primary()
        table.uuid('transactionRequestId')
        table.string('serializedRequest')
@@ -12,5 +12,5 @@ exports.up = function(knex) {
 
 exports.down = function(knex) {
   return knex.schema
-      .dropTableIfExists("mojatransaction_request")
+      .dropTableIfExists("mojaTransactionRequest")
 };

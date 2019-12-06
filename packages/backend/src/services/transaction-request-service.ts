@@ -181,7 +181,7 @@ export class KnexTransactionRequestService {
 
   async create (transactionRequest: TransactionRequest): Promise<StoredRequest> {
     const transactionRequestTools = new TransactionRequestTools(transactionRequest)
-    const insertedRequest = await this._knex<StoredRequest>('mojatransaction_request').insert({
+    const insertedRequest = await this._knex<StoredRequest>('mojaTransactionRequest').insert({
       transactionRequestId: transactionRequestTools.getRequestId(),
       serializedRequest: transactionRequestTools.getSerializedRequest(),
       valid: transactionRequestTools.getValidStatus()
@@ -193,7 +193,7 @@ export class KnexTransactionRequestService {
   }
 
   async getByRequestId (requestId: string): Promise<StoredRequest | undefined> {
-    const retrievedRequest = await this._knex<StoredRequest>('mojatransaction_request')
+    const retrievedRequest = await this._knex<StoredRequest>('mojaTransactionRequest')
       .where({ transactionrequestId: requestId })
       .first()
     return (retrievedRequest)
