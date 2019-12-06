@@ -12,7 +12,6 @@ describe('Health API Test', () => {
   let tokenService: TokenService
 
   beforeAll(async () => {
-
     tokenService = new TokenService({
       clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
       clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
@@ -33,7 +32,6 @@ describe('Health API Test', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
     port = server.address().port
-    return
   })
 
   afterAll(() => {
@@ -47,5 +45,4 @@ describe('Health API Test', () => {
 
     expect(response.statusCode).toBe(200)
   })
-
 })
