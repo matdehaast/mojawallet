@@ -21,7 +21,7 @@ const Signup: NextPage = () => {
   return (
     <div className="w-full max-w-xs mx-auto md:mt-32">
       <div className="flex flex-col mb-6">
-        {/* <img className="mx-auto h-32" src={'/logo_transparent.png'}/> */}
+        <img className="mx-auto h-32" src={'/logo.png'}/>
         <div className="text-center text-gray-800 text-lg font-light">
           Create an Account!
         </div>
