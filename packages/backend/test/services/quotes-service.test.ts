@@ -1,6 +1,6 @@
 import Knex from 'knex'
-import { Quote, KnexQuoteService } from '../../src/services/quote-service'
-import { TransactionRequest } from '../../src/services/transaction-request-service'
+import { Quote, KnexQuoteService, QuoteTools } from '../../src/services/quote-service'
+import { TransactionRequest, KnexTransactionRequestService } from '../../src/services/transaction-request-service'
 
 describe('Quotes service', () => {
   let knex: Knex
@@ -85,6 +85,7 @@ describe('Quotes service', () => {
 
   describe('Quote service tools', () => {
     let validRequest: TransactionRequest
+    let transactionRequestService: KnexTransactionRequestService
 
     beforeAll(async () => {
       knex = Knex({
@@ -94,6 +95,8 @@ describe('Quotes service', () => {
           supportBigNumbers: true
         }
       })
+  
+      transactionRequestService = new KnexTransactionRequestService(knex)
       
       validRequest = {
         transactionRequestId: 'ca919568-e559-42a8-b763-1be22179decc',
@@ -128,12 +131,17 @@ describe('Quotes service', () => {
     afterAll(async () => {})
     
     test('should generate a quote object from a valid transaction request id', async () => {
+      const quoteTools = new QuoteTools(validRequest)
 
-      quoteTools = new QuoteTools(trId)
+      expect(quoteTools).toBeDefined()
+      expect(quoteTools.getQuote().quoteId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)).toBeDefined()
     })
 
-    test('should throw an error when an non existant id is requested', async () => {})
+    test('should return a serialized quote object', async () => {
+      const quoteTools = new QuoteTools(validRequest)
 
-    test('should return a serialized quote object', async () => {})
+      expect(quoteTools.getSerializedQuote()).toBeDefined()
+      expect(quoteTools.getSerializedQuote()).toEqual(JSON.stringify(quoteTools.getQuote()))
+    })
   })
 })
