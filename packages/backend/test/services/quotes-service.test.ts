@@ -59,17 +59,17 @@ describe('Quotes service', () => {
       await knex.destroy()
     })
 
-    test('Should write a quote object to mojaquote', async () => {
+    test('Should write a quote object to mojaQuote', async () => {
       await quoteService.add(quote)
-      const storedQuote = await knex('mojaquote').first()
+      const storedQuote = await knex('mojaQuote').first()
       let serializedQuote = JSON.stringify(quote)
       
       expect(storedQuote).toBeDefined()
       expect(storedQuote.serializedQuote).toEqual(serializedQuote)
     })
 
-    test('should retrieve a quote from mojaquote', async () => {
-      await knex('mojaquote').insert({
+    test('should retrieve a quote from mojaQuote', async () => {
+      await knex('mojaQuote').insert({
         quoteId: '2c6af2fd-f0cb-43f5-98be-8abf539ee2c2',
         transactionId: '2c6af2fd-f0cb-43f5-98be-8abf539ee2c2',
         serializedQuote: ''

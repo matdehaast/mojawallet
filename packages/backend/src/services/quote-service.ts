@@ -69,7 +69,7 @@ export class KnexQuoteService {
   }
 
   async add (quote: Quote): Promise<MojaQuoteObj> {
-    const insertedQuote = await this._knex<MojaQuoteObj>('mojaquote').insert({
+    const insertedQuote = await this._knex<MojaQuoteObj>('mojaQuote').insert({
       quoteId: quote.quoteId,
       transactionId: quote.transactionId,
       serializedQuote: JSON.stringify(quote)
@@ -78,7 +78,7 @@ export class KnexQuoteService {
   }
 
   async get (quoteId: string) {
-    const retirevedQuote = await this._knex<MojaQuoteObj>('mojaquote')
+    const retirevedQuote = await this._knex<MojaQuoteObj>('mojaQuote')
       .where({ quoteId })
       .first()
     return (retirevedQuote)

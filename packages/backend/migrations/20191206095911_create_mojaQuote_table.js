@@ -1,7 +1,7 @@
 
 exports.up = function(knex) {
   return knex.schema
-    .createTable('mojaquote', function (table) {
+    .createTable('mojaQuote', function (table) {
        table.increments('id').primary()
        table.uuid('quoteId')
        table.uuid('transactionId')
@@ -11,5 +11,5 @@ exports.up = function(knex) {
 
 exports.down = function(knex) {
   return knex.schema
-      .dropTableIfExists("mojaquote")
+      .dropTableIfExists("mojaQuote")
 };
