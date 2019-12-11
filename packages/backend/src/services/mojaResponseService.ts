@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios'
+import got, { Response } from 'got'
 import { ExtensionList } from './transaction-request-service'
 import { Quote } from './quote-service'
 
@@ -19,22 +19,22 @@ export type TransactionRequestError = {
 }
 
 export interface MojaResponseService {
-  putResponse: (responseObj: TransactionMojaResponse, transactionRequestId: string) => Promise<AxiosResponse>;
-  putErrorResponse: (responseObj: TransactionRequestError, transactionRequestId: string) => Promise<AxiosResponse>;
-  quoteResponse: (responseObj: Quote) => Promise<AxiosResponse>;
+  putResponse: (responseObj: TransactionMojaResponse, transactionRequestId: string) => Promise<Response>;
+  putErrorResponse: (responseObj: TransactionRequestError, transactionRequestId: string) => Promise<Response>;
+  quoteResponse: (responseObj: Quote) => Promise<Response>;
 }
 
 export const mojaResponseService: MojaResponseService = {
-  putResponse: function (responseObj: TransactionMojaResponse, transactionRequestId: string) {
+  putResponse: async function (responseObj: TransactionMojaResponse, transactionRequestId: string) {
     const putUri = new URL('/transactionRequests/' + transactionRequestId, baseMojaUrl)
-    return axios.put(putUri.href, responseObj)
+    return got.put(putUri.href, { json: responseObj })
   },
   putErrorResponse: function (responseObj: TransactionRequestError, transactionRequestId: string) {
     const putUri = new URL('/transactionRequests/' + transactionRequestId + '/error', baseMojaUrl)
-    return axios.put(putUri.href, responseObj)
+    return got.put(putUri.href, { json: responseObj })
   },
   quoteResponse: function (responseObj: Quote) {
     const quoteUri = new URL('/quotes', baseMojaUrl)
-    return axios.post(quoteUri.href, responseObj)
+    return got.post(quoteUri.href, { json: responseObj })
   }
 }

@@ -26,7 +26,8 @@ describe('Health API Test', () => {
       transactionsService: {} as any,
       tokenService,
       userService: {} as any,
-      transactionRequestService: {} as any
+      transactionRequestService: {} as any,
+      quoteService: {} as any
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

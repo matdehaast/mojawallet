@@ -8,8 +8,8 @@ export async function create (ctx: AccountsAppContext): Promise<void> {
 
   try {
     await transactionRequests.create(body)
-    
-    // potentially change to a queing system for asynchronous responses
+
+    // potentially change to a queing system for asynchronous responses to avoid unhandled promises
     mojaResponseService.putResponse(
       {
         transactionRequestState: 'RECEIVED'

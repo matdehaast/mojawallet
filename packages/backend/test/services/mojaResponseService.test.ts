@@ -34,6 +34,10 @@ describe('Moja response services test', () => {
   })
 
   describe('Sending responses to endpoints', () => {
+  const sleep = (ms: number, ftDone: any) => new Promise((resolve) => setTimeout(() => {
+    ftDone()
+    resolve()
+  } , ms))
     
     test('Should respond to a successful transaction request', async (done) => {
       mojaResponseService
@@ -44,14 +48,15 @@ describe('Moja response services test', () => {
           'transactionRequest-id here'
         )
         .then(response => {
-          expect(response.status).toEqual(200)
+          expect(response.statusCode).toEqual(200)
         })
         .catch(() => {
           expect(true).toEqual(false)
         })
-      setTimeout(() => {
-        done()
-      }, 1000);
+      // setTimeout(() => {
+      //   done()
+      // }, 1000);
+      await sleep(300, done)
     })
 
     test('Should respond to a failed transaction request', async (done) => {
@@ -67,14 +72,15 @@ describe('Moja response services test', () => {
           'transactionRequest-id here'
         )
         .then(response => {
-          expect(response.status).toEqual(200)
+          expect(response.statusCode).toEqual(200)
         })
         .catch(() => {
           expect(true).toEqual(false)
         })
-        setTimeout(() => {
-          done()
-        }, 1000);
+        // setTimeout(() => {
+        //   done()
+        // }, 1000);
+      await sleep(300, done)
     })
 
     test('Should submit a quote', async (done) => {
@@ -105,14 +111,15 @@ describe('Moja response services test', () => {
       mojaResponseService
         .quoteResponse(quoteTools.getQuote())
         .then(response => {
-          expect(response.status).toEqual(200)
+          expect(response.statusCode).toEqual(200)
         })
         .catch(() => {
           expect(true).toEqual(false)
         })
-      setTimeout(() => {
-        done()
-      }, 1000);
+        // setTimeout(() => {
+        //   done()
+        // }, 1000);
+      await sleep(300, done)
     })
   })
 })
