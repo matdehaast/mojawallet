@@ -9,7 +9,6 @@ import { KnexUserService } from '../src/services/user-service'
 import { KnexTransactionRequestService } from '../src/services/transaction-request-service'
 import { createApp } from '../src/app'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
-import { TokenService } from '../src/services/token-service'
 import Knex = require('knex')
 import { KnexQuoteService } from '../src/services/quote-service'
 
@@ -24,7 +23,6 @@ describe('Users Service', function () {
   let quoteService: KnexQuoteService
   let userService: KnexUserService
   let hydraApi: HydraApi
-  let tokenService: TokenService
 
   beforeAll(async () => {
     knex = Knex({
@@ -38,12 +36,6 @@ describe('Users Service', function () {
     transactionRequestService = new KnexTransactionRequestService(knex)
     userService = new KnexUserService(knex)
     quoteService = new KnexQuoteService(knex)
-    tokenService = new TokenService({
-      clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
-      clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
-      issuerUrl: process.env.OAUTH_ISSUER_URL || 'https://auth.rafiki.money',
-      tokenRefreshTime: 0
-    })
     hydraApi = {
       introspectToken: async (token) => {
         if (token === 'user1token') {
@@ -74,7 +66,6 @@ describe('Users Service', function () {
       transactionRequestService,
       logger: createLogger(),
       hydraApi,
-      tokenService,
       userService,
       quoteService
     })
