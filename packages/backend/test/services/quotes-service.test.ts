@@ -85,19 +85,8 @@ describe('Quotes service', () => {
 
   describe('Quote service tools', () => {
     let validRequest: TransactionRequest
-    let transactionRequestService: KnexTransactionRequestService
 
-    beforeAll(async () => {
-      knex = Knex({
-        client: 'sqlite3',
-        connection: {
-          filename: ':memory:',
-          supportBigNumbers: true
-        }
-      })
-  
-      transactionRequestService = new KnexTransactionRequestService(knex)
-      
+    beforeAll(async () => {      
       validRequest = {
         transactionRequestId: 'ca919568-e559-42a8-b763-1be22179decc',
         payee: {

@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 import { ExtensionList } from './transaction-request-service'
+import { Quote } from './quote-service'
 
 const baseMojaUrl: string = process.env.PUT_BASE_URI || 'http://localhost:8008' // base uri for testing
 
@@ -20,6 +21,7 @@ export type TransactionRequestError = {
 export interface MojaResponseService {
   putResponse: (responseObj: TransactionMojaResponse, transactionRequestId: string) => Promise<AxiosResponse>;
   putErrorResponse: (responseObj: TransactionRequestError, transactionRequestId: string) => Promise<AxiosResponse>;
+  quoteResponse: (responseObj: Quote) => Promise<AxiosResponse>;
 }
 
 export const mojaResponseService: MojaResponseService = {
@@ -30,5 +32,9 @@ export const mojaResponseService: MojaResponseService = {
   putErrorResponse: function (responseObj: TransactionRequestError, transactionRequestId: string) {
     const putUri = new URL('/transactionRequests/' + transactionRequestId + '/error', baseMojaUrl)
     return axios.put(putUri.href, responseObj)
+  },
+  quoteResponse: function (responseObj: Quote) {
+    const quoteUri = new URL('/quotes', baseMojaUrl)
+    return axios.post(quoteUri.href, responseObj)
   }
 }

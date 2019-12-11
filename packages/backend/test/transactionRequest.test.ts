@@ -12,10 +12,20 @@ import { HydraApi, TokenInfo } from '../src/apis/hydra'
 import { TokenService } from '../src/services/token-service'
 import Knex = require('knex')
 import cors from '@koa/cors'
+import { KnexQuoteService } from '../src/services/quote-service'
 
-describe('Accounts API Test', () => {
+jest.mock('../src/services/mojaResponseService', () => ({
+  mojaResponseService: {
+    putResponse: jest.fn(),
+    putErrorResponse: jest.fn(),
+    quoteResponse: jest.fn()
+  }
+}))
+import { mojaResponseService } from '../src/services/mojaResponseService'
+
+
+describe('Trnsaction Request Test', () => {
   let server: Server
-  let switchServer: Server
   let port: number
   let app: Koa
   let knex: Knex
@@ -23,19 +33,13 @@ describe('Accounts API Test', () => {
   let transactionsService: KnexTransactionService
   let userService: KnexUserService
   let transactionRequestService: KnexTransactionRequestService
+  let quoteService: KnexQuoteService
   let hydraApi: HydraApi
   let tokenService: TokenService
   let validRequest: TransactionRequest
   let invalidRequest: TransactionRequest
 
   beforeAll(async () => {
-    let testSwitch = new Koa()
-    testSwitch.use(cors())
-    const router = new Router()
-    router.put('/transactionRequests/:id', ctx => {ctx.status = 200})
-    router.put('/transactionRequests/:id/error', ctx => {ctx.status = 200})
-    testSwitch.use(router.routes())
-    switchServer = testSwitch.listen(8008)
 
     knex = Knex({
       client: 'sqlite3',
@@ -47,6 +51,7 @@ describe('Accounts API Test', () => {
     transactionsService = new KnexTransactionService(knex)
     userService = new KnexUserService(knex)
     transactionRequestService = new KnexTransactionRequestService(knex)
+    quoteService = new KnexQuoteService(knex)
     tokenService = new TokenService({
       clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
       clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
@@ -83,7 +88,8 @@ describe('Accounts API Test', () => {
       logger: createLogger(),
       hydraApi,
       tokenService,
-      userService
+      userService,
+      quoteService
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -151,7 +157,6 @@ describe('Accounts API Test', () => {
   afterAll(() => {
     server.close()
     knex.destroy()
-    switchServer.close()
   })
 
   describe('Handling a transaction request post', () => {
@@ -162,6 +167,9 @@ describe('Accounts API Test', () => {
       if (storedRequest) {
         expect(response.status).toEqual(200)
         expect(storedRequest.transactionRequestId).toEqual(validRequest.transactionRequestId)
+        expect(mojaResponseService.putResponse).toHaveBeenCalledWith({
+          transactionRequestState: 'RECEIVED'
+        }, validRequest.transactionRequestId)
       } else {
         expect(storedRequest).toBeDefined()
       }
@@ -176,6 +184,13 @@ describe('Accounts API Test', () => {
         const storedRequest = await transactionRequestService.getByRequestId(invalidRequest.transactionRequestId)
         expect(storedRequest).toBeUndefined()
         expect(error.response.status).toEqual(400)
+        expect(mojaResponseService.putErrorResponse).toHaveBeenCalledWith({
+          errorInformation: {
+            errorCode: '3100',
+            errorDescription: 'Invalid transaction request',
+            extensionList: []
+          }
+        }, invalidRequest.transactionRequestId)
       })
     })
   })

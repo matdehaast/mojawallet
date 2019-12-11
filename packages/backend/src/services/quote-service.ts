@@ -29,7 +29,7 @@ export class QuoteTools {
   private _quote: Quote
   private _serializedQuote: string
 
-  constructor (transactionReq : TransactionRequest) {
+  constructor (transactionReq: TransactionRequest) {
     this._quote = {
       quoteId: uuidv4(),
       transactionId: uuidv4(),
@@ -41,13 +41,13 @@ export class QuoteTools {
       transactionType: transactionReq.transactionType,
       geoCode: transactionReq.geoCode,
       note: transactionReq.note,
-      expiration: this.getExpiry(60 * 60 * 1000),//hour from now
+      expiration: this.getExpiry(60 * 60 * 1000), // hour from now
       extensionList: transactionReq.extensionList
     }
     this._serializedQuote = JSON.stringify(this._quote)
   }
 
-  private getExpiry(timeFromNow: number): string {
+  private getExpiry (timeFromNow: number): string {
     const now = new Date()
     const expiry = new Date(now.getTime() + timeFromNow)
     return (expiry.toISOString())
