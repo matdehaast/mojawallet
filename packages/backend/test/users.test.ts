@@ -11,6 +11,7 @@ import { createApp } from '../src/app'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
 import { TokenService } from '../src/services/token-service'
 import Knex = require('knex')
+import { KnexQuoteService } from '../src/services/quote-service'
 
 describe('Users Service', function () {
   let server: Server
@@ -20,6 +21,7 @@ describe('Users Service', function () {
   let accountsService: KnexAccountService
   let transactionsService: KnexTransactionService
   let transactionRequestService: KnexTransactionRequestService
+  let quoteService: KnexQuoteService
   let userService: KnexUserService
   let hydraApi: HydraApi
   let tokenService: TokenService
@@ -35,6 +37,7 @@ describe('Users Service', function () {
     transactionsService = new KnexTransactionService(knex)
     transactionRequestService = new KnexTransactionRequestService(knex)
     userService = new KnexUserService(knex)
+    quoteService = new KnexQuoteService(knex)
     tokenService = new TokenService({
       clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
       clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
@@ -72,7 +75,8 @@ describe('Users Service', function () {
       logger: createLogger(),
       hydraApi,
       tokenService,
-      userService
+      userService,
+      quoteService
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
