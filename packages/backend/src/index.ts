@@ -15,6 +15,7 @@ logger.level = process.env.LOG_LEVEL || 'info'
 
 const PORT = process.env.PORT || 3001
 const KNEX_CLIENT = process.env.KNEX_CLIENT || 'sqlite3'
+const DFSP_ID = process.env.DFSP_ID || 'mojawallet'
 
 export interface AccountsAppContext extends Context {
   accounts: KnexAccountService;
@@ -46,7 +47,7 @@ const transactionRequestService = new KnexTransactionRequestService(knex)
 const quoteService = new KnexQuoteService(knex)
 
 const mojaloopRequests = new MojaloopRequests({
-  dfspId: '',
+  dfspId: DFSP_ID,
   jwsSign: false,
   jwsSigningKey: '',
   logger: undefined,

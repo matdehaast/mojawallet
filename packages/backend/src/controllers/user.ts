@@ -5,6 +5,8 @@ import { UserProps, User } from '../services/user-service'
 import { parseNumber, isValidNumber } from 'libphonenumber-js'
 import { v4 } from 'uuid'
 
+const DFSP_ID = process.env.DFSP_ID || 'mojawallet'
+
 export async function show (ctx: AccountsAppContext): Promise<void> {
   const { users } = ctx
   ctx.logger.debug('Get me request')
@@ -46,7 +48,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
       partyList: [ {
         partyIdentifier: username,
         partyIdType: 'MSISDN',
-        fspId: ''
+        fspId: DFSP_ID
       }]
     }).catch(error => {
       ctx.logger.error('Error adding participant to ALS', error)
