@@ -1,12 +1,12 @@
 import React from 'react'
 import Head from 'next/head'
-import Nav from '../components/nav'
 import { NextPage } from 'next'
 import Link from 'next/link'
 import { formatCurrency, checkUser } from "../utils"
 import { AccountsPageProps, AccountCardProps, Totals } from "../types"
 import { motion } from 'framer-motion'
 import { AccountsService } from '../services/accounts'
+import { Card } from '../components/card'
 
 const accountsService = AccountsService()
 
@@ -18,7 +18,7 @@ const Home: NextPage<AccountsPageProps> = ({accounts, user}) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-        <div className='w-full fixed top-0' style={{height: '21rem', background: 'linear-gradient(#225980, #7caab2)', borderRadius: '0 0 20px 20px',zIndex:-3000 }}/>
+        <div className='w-full rounded-b-2xl fixed top-0' style={{height: '21rem', background: 'linear-gradient(#225980, #7caab2)', zIndex:-3000 }}/>
         <div className='' style={{textDecoration: 'none', color: 'inherit', zIndex:0, marginTop: '6rem' }}>
           <div className='w-full mx-auto max-w-lg'>
             <div className="flex">
@@ -27,17 +27,16 @@ const Home: NextPage<AccountsPageProps> = ({accounts, user}) => {
               </div>
               <div className="mr-8" style={{ zIndex:1 }}>
                 <Link href={{ pathname: '/profile' }}>
-                  <img style={{ height: '35px'}} src={'../icons/person-24px-white.svg'}/>
+                  <img style={{ height: '32px'}} src={'../icons/person-24px-white.svg'}/>
                 </Link>
               </div>
             </div>
 
             <div className="w-full flex my-4 flex-wrap">
               <Balance balance={accounts.reduce((sum, current) => sum + current.balance, 0)} assetScale={2}/>
-              { accounts.length > 0 ? accounts.map(account => <AccountCard key={'account_' + account.id} account={account}/>) : <Empty/>}
+                { accounts.length > 0 ? accounts.map(account => <AccountCard key={'account_' + account.id} account={account}/>) : <Empty/> }
               <AddAccount/>
             </div>
-
           </div>
         </div>
       </div>
@@ -47,10 +46,10 @@ const Home: NextPage<AccountsPageProps> = ({accounts, user}) => {
 
 const Balance: React.FC<Totals> = ({ balance, assetScale }) => {
   return (
-    <div className="bg-white max-w-xl sm:max-w-xs rounded-lg shadow-lg flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
       <div className="flex flex-wrap text-2xl">
         <div className="w-1/2">
-          Balance:
+          Balance
         </div>
         <div className="w-1/2 text-right">
           {formatCurrency(balance, assetScale)}
@@ -62,7 +61,7 @@ const Balance: React.FC<Totals> = ({ balance, assetScale }) => {
 
 const Empty: React.FC = () => {
   return (
-    <div className="bg-white max-w-xl sm:max-w-xs rounded-lg shadow-lg flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
       <div className="flex flex-wrap content-center text-center mx-10">
         <div className="w-full mb-2">
           <img src={'../../icons/undraw_empty_xct9.svg'}/>
@@ -77,8 +76,8 @@ const Empty: React.FC = () => {
 
 const AddAccount: React.FC = () => {
   return (
-    <Link href={{ pathname: '/create' }}>
-      <div className="bg-white max-w-xl hover:bg-grey-lightest text-grey-darkest sm:max-w-xs font-semibold rounded-lg shadow-lg flex flex-col w-full my-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    <Link href={{ pathname: '/create/account' }}>
+      <div className="bg-white max-w-xl hover:bg-grey-lightest text-grey-darkest sm:max-w-xs font-semibold rounded-xl elevation-4 flex flex-col w-full my-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
         <div className="flex flex-wrap">
           <div className="mr-1 ml-auto">
             <img className="" src={'../../icons/add-24px.svg'}/>
@@ -95,7 +94,7 @@ const AddAccount: React.FC = () => {
 const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   return (
     <Link href="/account/[account.id]"  as={`/account/${account.id}`}>
-      <div className="bg-white max-w-xl sm:max-w-xs rounded-lg shadow-lg flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+      <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
         <div className="flex flex-1">
           <div className="flex-1">
             <div className="text-3xl">

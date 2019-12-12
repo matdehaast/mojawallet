@@ -2,8 +2,25 @@ export type AccountCardProps = {
   account: AccountDetails
 }
 
+export type TransactionCardProps = {
+  transaction: TransactionsDetails
+}
+
+export type AccountPageProps = {
+  account: AccountDetails
+  transactions: TransactionsDetails[]
+}
+
 export type ProfilePageProps = {
   user: UserDetails
+}
+
+export type TransactionsDetails = {
+  id: number
+  accountId: string
+  amount: number
+  epoch: number
+  Description: string
 }
 
 export type AccountDetails = {

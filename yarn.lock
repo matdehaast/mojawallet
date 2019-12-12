@@ -5903,6 +5903,11 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
+hex-rgb@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/hex-rgb/-/hex-rgb-4.1.0.tgz#2d5d3a2943bd40e7dc9b0d5b98903d7d17035967"
+  integrity sha512-n7xsIfyBkFChITGPh6FLtxNzAt2HxZLcQIY9hYH4gm2gmMQJHMguMH3E+jnmvUbSTF5QrmFnGab5Ippi+D7e/g==
+
 hey-listen@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/hey-listen/-/hey-listen-1.0.8.tgz#8e59561ff724908de1aa924ed6ecc84a56a9aa68"
@@ -11459,6 +11464,13 @@ table@^5.2.3:
     lodash "^4.17.14"
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
+
+tailwindcss-elevation@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/tailwindcss-elevation/-/tailwindcss-elevation-0.3.3.tgz#b465a718687b728090759ad17ad6b11fdecad22a"
+  integrity sha512-mZazUrr2NwUm+wErtOhUgLrqUACXntWCzLmJjTOZIWN9wzFG3+XFkqXwDzuSMNRK1+5eWmczrt3IgLDriJ3Cxg==
+  dependencies:
+    hex-rgb "^4.1.0"
 
 tailwindcss@^1.1.4:
   version "1.1.4"
