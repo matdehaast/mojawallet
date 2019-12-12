@@ -9,6 +9,7 @@ import createLogger, { Logger } from 'pino'
 import { createApp } from './app'
 import { KnexQuoteService } from './services/quote-service'
 import Knex = require('knex')
+import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
@@ -20,6 +21,7 @@ export interface AccountsAppContext extends Context {
   transactions: KnexTransactionService;
   transactionRequests: KnexTransactionRequestService;
   logger: Logger;
+  mojaloopRequests: MojaloopRequests
 }
 
 const knex = KNEX_CLIENT === 'mysql' ? Knex({
@@ -43,6 +45,15 @@ const userService = new KnexUserService(knex)
 const transactionRequestService = new KnexTransactionRequestService(knex)
 const quoteService = new KnexQuoteService(knex)
 
+const mojaloopRequests = new MojaloopRequests({
+  dfspId: '',
+  jwsSign: false,
+  jwsSigningKey: '',
+  logger: undefined,
+  peerEndpoint: '',
+  tls: {outbound: {mutualTLS: {enabled: false}}}
+})
+
 const app = createApp({
   accountsService,
   transactionsService,
@@ -50,7 +61,8 @@ const app = createApp({
   hydraApi,
   userService,
   transactionRequestService,
-  quoteService
+  quoteService,
+  mojaloopRequests
 })
 
 let server: Server
