@@ -6,7 +6,6 @@ import { formatCurrency, checkUser } from "../utils"
 import { AccountsPageProps, AccountCardProps, Totals } from "../types"
 import { motion } from 'framer-motion'
 import { AccountsService } from '../services/accounts'
-import { Card } from '../components/card'
 
 const accountsService = AccountsService()
 

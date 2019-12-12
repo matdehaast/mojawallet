@@ -10,13 +10,6 @@ describe('Health API Test', () => {
   let app: Koa
 
   beforeAll(async () => {
-    tokenService = new TokenService({
-      clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
-      clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
-      issuerUrl: process.env.OAUTH_ISSUER_URL || 'https://auth.rafiki.money',
-      tokenRefreshTime: 0
-    })
-
     app = createApp({
       logger: createLogger(),
       accountsService: {} as any,
