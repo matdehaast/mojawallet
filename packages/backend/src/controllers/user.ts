@@ -43,7 +43,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
     const user = await users.store(userProps)
     ctx.logger.debug(`Creating user ${user}`)
 
-    const alsResponse = await mojaloopRequests.postParticipants({
+    await mojaloopRequests.postParticipants({
       requestId: v4(),
       partyList: [ {
         partyIdentifier: username,

@@ -1,3 +1,4 @@
+// eslint-disable-file no-use-before-define
 /// <reference types="node" />
 
 declare module '@mojaloop/sdk-standard-components' {

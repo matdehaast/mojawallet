@@ -8,8 +8,8 @@ import { hydraApi } from './apis/hydra'
 import createLogger, { Logger } from 'pino'
 import { createApp } from './app'
 import { KnexQuoteService } from './services/quote-service'
-import Knex = require('knex')
 import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
+import Knex = require('knex')
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
@@ -52,7 +52,7 @@ const mojaloopRequests = new MojaloopRequests({
   jwsSigningKey: '',
   logger: undefined,
   peerEndpoint: '',
-  tls: {outbound: {mutualTLS: {enabled: false}}}
+  tls: { outbound: { mutualTLS: { enabled: false } } }
 })
 
 const app = createApp({
