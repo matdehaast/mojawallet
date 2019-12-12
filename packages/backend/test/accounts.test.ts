@@ -5,10 +5,11 @@ import { Server } from 'http'
 import { KnexAccountService } from '../src/services/accounts-service'
 import { KnexTransactionService } from '../src/services/transactions-service'
 import { KnexUserService } from '../src/services/user-service'
+import { KnexTransactionRequestService } from '../src/services/transaction-request-service'
 import createLogger from 'pino'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
-import { TokenService } from '../src/services/token-service'
 import Knex = require('knex')
+import { KnexQuoteService } from '../src/services/quote-service'
 
 describe('Accounts API Test', () => {
   let server: Server
@@ -17,9 +18,10 @@ describe('Accounts API Test', () => {
   let knex: Knex
   let accountsService: KnexAccountService
   let transactionsService: KnexTransactionService
+  let transactionRequestService: KnexTransactionRequestService
+  let quoteService: KnexQuoteService
   let userService: KnexUserService
   let hydraApi: HydraApi
-  let tokenService: TokenService
 
   beforeAll(async () => {
     knex = Knex({
@@ -30,13 +32,9 @@ describe('Accounts API Test', () => {
     })
     accountsService = new KnexAccountService(knex)
     transactionsService = new KnexTransactionService(knex)
+    transactionRequestService = new KnexTransactionRequestService(knex)
     userService = new KnexUserService(knex)
-    tokenService = new TokenService({
-      clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
-      clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
-      issuerUrl: process.env.OAUTH_ISSUER_URL || 'https://auth.rafiki.money',
-      tokenRefreshTime: 0
-    })
+    quoteService = new KnexQuoteService(knex)
     hydraApi = {
       introspectToken: async (token) => {
         if (token === 'user1token') {
@@ -63,10 +61,11 @@ describe('Accounts API Test', () => {
     app = createApp({
       accountsService,
       transactionsService,
+      transactionRequestService,
       logger: createLogger(),
       hydraApi,
-      tokenService,
-      userService
+      userService,
+      quoteService
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

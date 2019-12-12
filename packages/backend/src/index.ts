@@ -2,11 +2,12 @@ import { Context } from 'koa'
 import { KnexAccountService } from './services/accounts-service'
 import { KnexTransactionService } from './services/transactions-service'
 import { KnexUserService } from './services/user-service'
+import { KnexTransactionRequestService } from './services/transaction-request-service'
 import { Server } from 'http'
 import { hydraApi } from './apis/hydra'
 import createLogger, { Logger } from 'pino'
 import { createApp } from './app'
-import { TokenService } from './services/token-service'
+import { KnexQuoteService } from './services/quote-service'
 import Knex = require('knex')
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
@@ -17,7 +18,7 @@ const KNEX_CLIENT = process.env.KNEX_CLIENT || 'sqlite3'
 export interface AccountsAppContext extends Context {
   accounts: KnexAccountService;
   transactions: KnexTransactionService;
-  tokenService: TokenService;
+  transactionRequests: KnexTransactionRequestService;
   logger: Logger;
 }
 
@@ -39,21 +40,17 @@ const knex = KNEX_CLIENT === 'mysql' ? Knex({
 const accountsService = new KnexAccountService(knex)
 const transactionsService = new KnexTransactionService(knex)
 const userService = new KnexUserService(knex)
-
-const tokenService = new TokenService({
-  clientId: process.env.OAUTH_CLIENT_ID || 'wallet-users-service',
-  clientSecret: process.env.OAUTH_CLIENT_SECRET || '',
-  issuerUrl: process.env.OAUTH_ISSUER_URL || 'https://auth.rafiki.money',
-  tokenRefreshTime: 0
-})
+const transactionRequestService = new KnexTransactionRequestService(knex)
+const quoteService = new KnexQuoteService(knex)
 
 const app = createApp({
   accountsService,
   transactionsService,
   logger,
   hydraApi,
-  tokenService,
-  userService
+  userService,
+  transactionRequestService,
+  quoteService
 })
 
 let server: Server

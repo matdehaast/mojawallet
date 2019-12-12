@@ -3,13 +3,11 @@ import got from 'got'
 import { createApp } from '../src/app'
 import { Server } from 'http'
 import createLogger from 'pino'
-import { TokenService } from '../src/services/token-service'
 
 describe('Health API Test', () => {
   let server: Server
   let port: number
   let app: Koa
-  let tokenService: TokenService
 
   beforeAll(async () => {
     tokenService = new TokenService({
@@ -24,8 +22,9 @@ describe('Health API Test', () => {
       accountsService: {} as any,
       hydraApi: {} as any,
       transactionsService: {} as any,
-      tokenService,
-      userService: {} as any
+      userService: {} as any,
+      transactionRequestService: {} as any,
+      quoteService: {} as any
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
