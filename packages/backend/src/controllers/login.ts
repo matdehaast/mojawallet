@@ -1,13 +1,31 @@
 import bcrypt from 'bcrypt'
-import { User } from '../services/user-service'
-import { Config, Joi } from 'koa-joi-router'
-import { hydraApi } from '../apis/hydra'
+import { Joi } from 'koa-joi-router'
 import { AccountsAppContext } from '..'
+import { ValidationError } from 'joi'
 
 export async function show (ctx: AccountsAppContext): Promise<void> {
+  const { hydraApi } = ctx
   const challenge = ctx.request.query.login_challenge
   ctx.logger.debug('Get login request', { challenge })
-  const loginRequest = await hydraApi.getLoginRequest(challenge).catch(error => {
+
+  try {
+    await getLoginSchema.validate({ login_challenge: challenge })
+  } catch (error) {
+    const e: ValidationError = error
+    ctx.body = {
+      message: "Validation Failed",
+      errors: e.details.map(detail => {
+        return {
+          field: detail.context!.label,
+          message: detail.message
+        }
+      })
+    }
+    ctx.status = 422
+    return
+  }
+
+  const loginRequest = await hydraApi.getLoginRequest(challenge).catch((error: any) => {
     ctx.logger.error(error, 'error in login request')
     throw error
   })
@@ -16,7 +34,7 @@ export async function show (ctx: AccountsAppContext): Promise<void> {
     const acceptLogin = await hydraApi.acceptLoginRequest(challenge, { subject: loginRequest['subject'],
       remember: true,
       remember_for: 604800 // 1 week
-    }).catch(error => {
+    }).catch((error: any) => {
       ctx.logger.error(error, 'error in accept login request')
       throw error
     })
@@ -28,28 +46,67 @@ export async function show (ctx: AccountsAppContext): Promise<void> {
   ctx.status = 200
   ctx.body = { redirectTo: null }
 }
+
 export async function store (ctx: AccountsAppContext): Promise<void> {
-  const { users } = ctx
+  const { users, hydraApi } = ctx
   const { username, password } = ctx.request.body
   const challenge = ctx.request.query.login_challenge
+
   ctx.logger.debug('Post login request', { username: username, challenge })
-  let user: User
+
   try {
-    user = await users.getByUsername(username)
-    ctx.assert(user, 401, 'Invalid username or password.')
-    ctx.logger.debug(`Creating user ${user}`)
-    ctx.body = {
-      ...user
-    }
+    await postLoginSchema.validate({ username, password, login_challenge: challenge })
   } catch (error) {
-    ctx.throw(400, error)
+    const e: ValidationError = error
+    ctx.body = {
+      message: "Validation Failed",
+      errors: e.details.map(detail => {
+        return {
+          field: detail.context!.label,
+          message: detail.message
+        }
+      })
+    }
+    ctx.status = 422
+    return
   }
-  ctx.assert(await bcrypt.compare(password, user!.password), 401, 'Invalid username or password.')
+
+  const user = await users.getByUsername(username).catch(() => {
+    ctx.body = {
+      message: "Validation Failed",
+      errors: [
+        {
+          field: 'username',
+          message: "User does not exist"
+        }
+      ]
+    }
+    ctx.status = 422
+  })
+
+  if(!user) {
+    return
+  }
+
+  if(!await bcrypt.compare(password, user!.password)) {
+    ctx.body = {
+      message: "Validation Failed",
+      errors: [
+        {
+          field: 'password',
+          message: "Invalid password"
+        }
+      ]
+    }
+    ctx.status = 422
+    return
+  }
+
   const acceptLogin = await hydraApi.acceptLoginRequest(challenge, {
     subject: user!.id.toString(),
     remember: true,
     remember_for: 604800 // 1 week
-  }).catch(error => {
+  }).catch((error: any) => {
     ctx.logger.error(error, 'error in accept login request')
     throw error
   })
@@ -59,27 +116,12 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
   }
 }
 
-export function createValidation (): Config {
-  return {
-    validate: {
-      type: 'json',
-      query: {
-        login_challenge: Joi.string().required().error(new Error('login_challenge is required.'))
-      },
-      body: Joi.object({
-        username: Joi.string().required(),
-        password: Joi.string().required()
-      })
-    }
-  }
-}
+export const postLoginSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+  login_challenge: Joi.string().required().meta({message: 'login_challenge is required'})
+})
 
-export function getValidation (): Config {
-  return {
-    validate: {
-      query: {
-        login_challenge: Joi.string().required().error(new Error('login_challenge is required.'))
-      }
-    }
-  }
-}
+export const getLoginSchema = Joi.object({
+  login_challenge: Joi.string().required().meta({message: 'login_challenge is required'})
+})
