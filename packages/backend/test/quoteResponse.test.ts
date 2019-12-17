@@ -97,13 +97,13 @@ describe('Response from switch after a quote is sent', () => {
       payee: {
         partyIdInfo: {
           partyIdType: 'MSISDN',
-          partyIdentifier: 'party1'
+          partyIdentifier: 'partyA'
         }
       },
       payer: {
         partyIdInfo: {
           partyIdType: 'MSISDN',
-          partyIdentifier: 'party2'
+          partyIdentifier: 'partyB'
         }
       },
       amountType: 'RECEIVE',
@@ -139,7 +139,6 @@ describe('Response from switch after a quote is sent', () => {
 
   beforeEach(async () => {
     await knex.migrate.latest()
-    quoteService.add(validQuote)
   })
 
   afterEach(async () => {
@@ -155,6 +154,7 @@ describe('Response from switch after a quote is sent', () => {
   describe('Handling PUT to "/quotes"', () => {
     test('Should return 200 status, store response and initiate Authorization on valid quote response', async () => {
 
+      quoteService.add(validQuote)
       const response = await axios.put(`http://localhost:${port}/quotes/${validQuote.quoteId}`, validQuoteResponse)
       const retrievedQuote = await knex<MojaQuoteObj>('mojaQuote').where({ quoteId: validQuote.quoteId }).first()
 
@@ -170,6 +170,7 @@ describe('Response from switch after a quote is sent', () => {
 
     test('Should return 400 status and not initiate Authorization on invalid quote response', async () => {
 
+      quoteService.add(validQuote)
       axios.put(`http://localhost:${port}/quotes/${validQuote.quoteId}`, invalidQuoteResponse)
       .then(response => {
         expect(true).toEqual(false)
@@ -179,11 +180,11 @@ describe('Response from switch after a quote is sent', () => {
         const retrievedQuote = await knex<MojaQuoteObj>('mojaQuote').where({ quoteId: validQuote.quoteId }).first()
         if (retrievedQuote) {
           expect(retrievedQuote.quoteResponse).toEqual(null)
+          expect(authorizeQuote).toBeCalledTimes(0)
         } else {
           expect(true).toEqual(false)
         }
       })
-      expect(authorizeQuote).toBeCalledTimes(0)
 
     })
 
@@ -195,9 +196,9 @@ describe('Response from switch after a quote is sent', () => {
       })
       .catch(error => {
         expect(error.response.status).toEqual(404)
+        expect(authorizeQuote).toBeCalledTimes(0)
       })
 
-      expect(authorizeQuote).toBeCalledTimes(0)
     })
   })
 })
