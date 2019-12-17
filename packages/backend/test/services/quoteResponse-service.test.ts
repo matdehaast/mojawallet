@@ -48,7 +48,6 @@ describe('Quote response service tests', () => {
         initiatorType: 'CONSUMER'
       }
     }
-    knexQuoteService.add(validQuote)
     validQuoteResponse = {
       transferAmount:{
         currency: 'USD',
@@ -69,16 +68,22 @@ describe('Quote response service tests', () => {
     }
   })
 
-  beforeEach(async () => {})
+  beforeEach(async () => {
+    await knex.migrate.latest()
+  })
 
   afterEach(async () => {
+    await knex.migrate.rollback()
     jest.clearAllMocks()
   })
 
-  afterAll(async ()=> {})
+  afterAll(async ()=> {
+    knex.destroy()
+  })
 
   describe('Testing of quote response tools', () => {
     test('Should sucessfully construct tool object with valid quote response', async () => {
+      await knexQuoteService.add(validQuote)
       let serializedResponse: string
       try {
         const quoteResponseTool = new QuoteResponseTool(validQuoteResponse, validQuote.quoteId)
@@ -93,6 +98,7 @@ describe('Quote response service tests', () => {
     })
 
     test('Should throw error on using invalid quote response', async () => {
+      await knexQuoteService.add(validQuote)
       expect(() => {
         const quoteResponseTool = new QuoteResponseTool(invalidQuoteResponse, validQuote.quoteId)
         quoteResponseTool.initAuthorization()
