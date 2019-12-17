@@ -20,6 +20,7 @@ jest.mock('../src/services/mojaResponseService', () => ({
   }
 }))
 import { mojaResponseService } from '../src/services/mojaResponseService'
+import { MojaloopRequests } from "@mojaloop/sdk-standard-components"
 
 
 describe('Trnsaction Request Test', () => {
@@ -35,6 +36,14 @@ describe('Trnsaction Request Test', () => {
   let hydraApi: HydraApi
   let validRequest: TransactionRequest
   let invalidRequest: TransactionRequest
+  const mojaloopRequests = new MojaloopRequests({
+    dfspId: 'mojawallet',
+    jwsSign: false,
+    jwsSigningKey: 'test',
+    logger: console,
+    peerEndpoint: '',
+    tls: {outbound: {mutualTLS: {enabled: false}}}
+  })
 
   beforeAll(async () => {
 
@@ -79,7 +88,8 @@ describe('Trnsaction Request Test', () => {
       logger: createLogger(),
       hydraApi,
       userService,
-      quoteService
+      quoteService,
+      mojaloopRequests
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

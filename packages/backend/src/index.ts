@@ -8,12 +8,14 @@ import { hydraApi } from './apis/hydra'
 import createLogger, { Logger } from 'pino'
 import { createApp } from './app'
 import { KnexQuoteService } from './services/quote-service'
+import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
 import Knex = require('knex')
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
 const PORT = process.env.PORT || 3001
 const KNEX_CLIENT = process.env.KNEX_CLIENT || 'sqlite3'
+const DFSP_ID = process.env.DFSP_ID || 'mojawallet'
 
 export interface AccountsAppContext extends Context {
   accounts: KnexAccountService;
@@ -21,6 +23,7 @@ export interface AccountsAppContext extends Context {
   transactionRequests: KnexTransactionRequestService;
   quotes: KnexQuoteService;
   logger: Logger;
+  mojaloopRequests: MojaloopRequests
 }
 
 const knex = KNEX_CLIENT === 'mysql' ? Knex({
@@ -44,6 +47,15 @@ const userService = new KnexUserService(knex)
 const transactionRequestService = new KnexTransactionRequestService(knex)
 const quoteService = new KnexQuoteService(knex)
 
+const mojaloopRequests = new MojaloopRequests({
+  dfspId: DFSP_ID,
+  jwsSign: false,
+  jwsSigningKey: 'dummykey',
+  logger: console,
+  peerEndpoint: '',
+  tls: { outbound: { mutualTLS: { enabled: false } } }
+})
+
 const app = createApp({
   accountsService,
   transactionsService,
@@ -51,7 +63,8 @@ const app = createApp({
   hydraApi,
   userService,
   transactionRequestService,
-  quoteService
+  quoteService,
+  mojaloopRequests
 })
 
 let server: Server

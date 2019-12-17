@@ -11,6 +11,8 @@ import { createApp } from '../src/app'
 import { HydraApi, TokenInfo } from '../src/apis/hydra'
 import Knex = require('knex')
 import { KnexQuoteService } from '../src/services/quote-service'
+import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
+jest.mock('@mojaloop/sdk-standard-components');
 
 describe('Users Service', function () {
   let server: Server
@@ -23,6 +25,18 @@ describe('Users Service', function () {
   let quoteService: KnexQuoteService
   let userService: KnexUserService
   let hydraApi: HydraApi
+  const mojaloopRequests = new MojaloopRequests({
+    dfspId: 'mojawallet',
+    jwsSign: false,
+    jwsSigningKey: 'test',
+    logger: console,
+    peerEndpoint: '',
+    tls: {outbound: {mutualTLS: {enabled: false}}}
+  })
+  const postParticipantsMock =  jest.fn().mockImplementation(() => {
+    return Promise.resolve()
+  })
+  mojaloopRequests.postParticipants = postParticipantsMock
 
   beforeAll(async () => {
     knex = Knex({
@@ -67,7 +81,8 @@ describe('Users Service', function () {
       logger: createLogger(),
       hydraApi,
       userService,
-      quoteService
+      quoteService,
+      mojaloopRequests
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -80,6 +95,7 @@ describe('Users Service', function () {
   })
 
   afterEach(async () => {
+    postParticipantsMock.mockClear()
     await knex.migrate.rollback()
   })
 
@@ -100,6 +116,24 @@ describe('Users Service', function () {
       expect(response.username).toEqual('+27844444444')
     })
 
+    test('creating a user registers the number at the ALS', async () => {
+
+      const response = await axios.post(`http://localhost:${port}/users`, {
+        username: '+27844444444',
+        password: 'test'
+      }).then(resp => {
+        expect(resp.status).toEqual(200)
+        return resp.data
+      })
+
+      expect(postParticipantsMock.mock.calls.length).toBe(1)
+      expect(postParticipantsMock.mock.calls[0][0].partyList).toStrictEqual([{
+        partyIdentifier: '+27844444444',
+        partyIdType: 'MSISDN',
+        fspId: 'mojawallet'
+      }])
+    })
+
     test('throws invalid phonenumber', async () => {
       const response = await axios.post(`http://localhost:${port}/users`, {
         username: 'alice',
@@ -107,8 +141,10 @@ describe('Users Service', function () {
       }).then(resp => {
         return resp.data
       }).catch(error => {
-        expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('Invalid phonenumber.')
+        const { data } = error.response
+        expect(error.response.status).toEqual(422)
+        expect(data.errors[0].field).toBe("username")
+        expect(data.errors[0].message).toBe('Invalid phone number entered')
         return error
       })
       expect(response.username).toBeUndefined()
@@ -124,14 +160,16 @@ describe('Users Service', function () {
       expect(response.password).not.toEqual('test')
     })
 
-    test('userName is required', async () => {
+    test('username is required', async () => {
       const response = await axios.post(`http://localhost:${port}/users`, {
         password: 'test'
       }).then(resp => {
         return resp.data
       }).catch(error => {
-        expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('"username" is required')
+        const { data } = error.response
+        expect(error.response.status).toEqual(422)
+        expect(data.errors[0].field).toBe("username")
+        expect(data.errors[0].message).toBe('"username" is required')
         return error
       })
       expect(response.username).toBeUndefined()
@@ -143,8 +181,10 @@ describe('Users Service', function () {
       }).then(resp => {
         return resp.data
       }).catch(error => {
-        expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('"password" is required')
+        const { data } = error.response
+        expect(error.response.status).toEqual(422)
+        expect(data.errors[0].field).toBe("password")
+        expect(data.errors[0].message).toBe('"password" is required')
         return error
       })
       expect(response.username).toBeUndefined()
@@ -158,6 +198,7 @@ describe('Users Service', function () {
         expect(resp.status).toEqual(200)
         return resp.data
       })
+
       expect(response.username).toEqual('+27844444444')
       try {
         await axios.post(`http://localhost:${port}/users`, {
@@ -165,8 +206,11 @@ describe('Users Service', function () {
           password: 'test'
         })
       } catch (error) {
-        expect(error.response.status).toEqual(400)
-        expect(error.response.data).toEqual('A user with this username already exists.')
+        const { data } = error.response
+        expect(error.response.status).toEqual(422)
+        expect(data.errors[0].field).toBe("username")
+        expect(data.errors[0].message).toBe('Username already exists')
+        return error
       }
     })
   })
@@ -185,7 +229,8 @@ describe('Users Service', function () {
         return resp.data
       })
       expect(user.username).toEqual('+27844444444')
-      const updatedUser = await axios.patch(`http://localhost:${port}/users`, {
+
+      await axios.patch(`http://localhost:${port}/users`, {
         username: '+27844444444',
         password: 'newPassword'
       }, {
@@ -196,6 +241,9 @@ describe('Users Service', function () {
         expect(resp.status).toEqual(200)
         return resp.data
       })
+
+      const updatedUser = await userService.getById(user.id)
+
       expect(updatedUser.password).not.toEqual('oldPassword')
       expect(updatedUser.password).not.toEqual('newPassword')
       expect(bcrypt.compare('newPassword', updatedUser.password)).toBeTruthy()
