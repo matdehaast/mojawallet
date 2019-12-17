@@ -143,13 +143,13 @@ describe('Response from switch after a quote is sent', () => {
   })
 
   afterEach(async () => {
-    await knex.migrate.rollback()
     jest.clearAllMocks()
+    await knex.migrate.rollback()
   })
 
   afterAll(async () => {
+    await knex.destroy()
     server.close()
-    knex.destroy()
   })
 
   describe('Handling PUT to "/quotes"', () => {
