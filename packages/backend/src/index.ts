@@ -19,6 +19,7 @@ export interface AccountsAppContext extends Context {
   accounts: KnexAccountService;
   transactions: KnexTransactionService;
   transactionRequests: KnexTransactionRequestService;
+  quotes: KnexQuoteService;
   logger: Logger;
 }
 
