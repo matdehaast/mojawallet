@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { Config, Joi } from 'koa-joi-router'
+import { Joi } from 'koa-joi-router'
 import { AccountsAppContext } from '..'
 import { UserProps, User } from '../services/user-service'
 import { parseNumber, isValidNumber } from 'libphonenumber-js'
@@ -25,6 +25,11 @@ export async function show (ctx: AccountsAppContext): Promise<void> {
   }
 }
 
+export const createUserSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required()
+})
+
 export async function store (ctx: AccountsAppContext): Promise<void> {
   const { users, mojaloopRequests } = ctx
   const { username, password } = ctx.request.body
@@ -36,7 +41,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
   } catch (error) {
     const e: ValidationError = error
     ctx.body = {
-      message: "Validation Failed",
+      message: 'Validation Failed',
       errors: e.details.map(detail => {
         return {
           field: detail.context!.label,
@@ -48,13 +53,13 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
     return
   }
 
-  if(!isValidNumber(parseNumber(username))) {
+  if (!isValidNumber(parseNumber(username))) {
     ctx.body = {
-      message: "Validation Failed",
+      message: 'Validation Failed',
       errors: [
         {
           field: 'username',
-          message: "Invalid phone number entered"
+          message: 'Invalid phone number entered'
         }
       ]
     }
@@ -63,24 +68,22 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
   }
 
   try {
-    if(await users.getByUsername(username)) {
+    if (await users.getByUsername(username)) {
       ctx.body = {
-        message: "Validation Failed",
+        message: 'Validation Failed',
         errors: [
           {
             field: 'username',
-            message: "Username already exists"
+            message: 'Username already exists'
           }
         ]
       }
       ctx.status = 422
       return
     }
-  } catch {
-
+  } catch (error) {
+    ctx.logger.info('Tried creating user that already exists')
   }
-
-
 
   const salt = await bcrypt.genSalt()
   const hashedPassword = bcrypt.hashSync(password, salt)
@@ -144,8 +147,3 @@ export async function update (ctx: AccountsAppContext): Promise<void> {
 
   ctx.response.status = 200
 }
-
-export const createUserSchema = Joi.object({
-  username: Joi.string().required(),
-  password: Joi.string().required(),
-})

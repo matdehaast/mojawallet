@@ -3,6 +3,16 @@ import { Joi } from 'koa-joi-router'
 import { AccountsAppContext } from '..'
 import { ValidationError } from 'joi'
 
+export const postLoginSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
+  login_challenge: Joi.string().required().meta({ message: 'login_challenge is required' })
+})
+
+export const getLoginSchema = Joi.object({
+  login_challenge: Joi.string().required().meta({ message: 'login_challenge is required' })
+})
+
 export async function show (ctx: AccountsAppContext): Promise<void> {
   const { hydraApi } = ctx
   const challenge = ctx.request.query.login_challenge
@@ -13,7 +23,7 @@ export async function show (ctx: AccountsAppContext): Promise<void> {
   } catch (error) {
     const e: ValidationError = error
     ctx.body = {
-      message: "Validation Failed",
+      message: 'Validation Failed',
       errors: e.details.map(detail => {
         return {
           field: detail.context!.label,
@@ -59,7 +69,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
   } catch (error) {
     const e: ValidationError = error
     ctx.body = {
-      message: "Validation Failed",
+      message: 'Validation Failed',
       errors: e.details.map(detail => {
         return {
           field: detail.context!.label,
@@ -73,28 +83,28 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
 
   const user = await users.getByUsername(username).catch(() => {
     ctx.body = {
-      message: "Validation Failed",
+      message: 'Validation Failed',
       errors: [
         {
           field: 'username',
-          message: "User does not exist"
+          message: 'User does not exist'
         }
       ]
     }
     ctx.status = 422
   })
 
-  if(!user) {
+  if (!user) {
     return
   }
 
-  if(!await bcrypt.compare(password, user!.password)) {
+  if (!await bcrypt.compare(password, user!.password)) {
     ctx.body = {
-      message: "Validation Failed",
+      message: 'Validation Failed',
       errors: [
         {
           field: 'password',
-          message: "Invalid password"
+          message: 'Invalid password'
         }
       ]
     }
@@ -115,13 +125,3 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
     redirectTo: acceptLogin['redirect_to']
   }
 }
-
-export const postLoginSchema = Joi.object({
-  username: Joi.string().required(),
-  password: Joi.string().required(),
-  login_challenge: Joi.string().required().meta({message: 'login_challenge is required'})
-})
-
-export const getLoginSchema = Joi.object({
-  login_challenge: Joi.string().required().meta({message: 'login_challenge is required'})
-})
