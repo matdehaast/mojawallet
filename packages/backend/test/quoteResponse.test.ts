@@ -13,6 +13,7 @@ import createLogger from 'pino'
 import { authorizeQuote } from '../src/services/authorization-service'
 import Knex = require('knex')
 import uuid from 'uuid'
+import { MojaloopRequests } from "@mojaloop/sdk-standard-components"
 
 jest.mock('../src/services/authorization-service', () => ({
   authorizeQuote: jest.fn()
@@ -32,6 +33,14 @@ describe('Response from switch after a quote is sent', () => {
   let validQuote: Quote
   let validQuoteResponse: QuoteResponse
   let invalidQuoteResponse: QuoteResponse
+  const mojaloopRequests = new MojaloopRequests({
+    dfspId: 'mojawallet',
+    jwsSign: false,
+    jwsSigningKey: 'test',
+    logger: console,
+    peerEndpoint: '',
+    tls: {outbound: {mutualTLS: {enabled: false}}}
+  })
 
   beforeAll(async () => {
     knex = Knex({
@@ -75,7 +84,8 @@ describe('Response from switch after a quote is sent', () => {
       logger: createLogger(),
       hydraApi,
       userService,
-      quoteService
+      quoteService,
+      mojaloopRequests
     })
     server = app.listen(0)
     // @ts-ignore

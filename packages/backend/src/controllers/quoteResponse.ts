@@ -1,4 +1,4 @@
-import { AccountsAppContext } from 'backend'
+import { AccountsAppContext } from '../index'
 import { QuoteResponseTool } from '../services/quoteResponse-service'
 
 export async function quoteResponse (ctx: AccountsAppContext): Promise<void> {
