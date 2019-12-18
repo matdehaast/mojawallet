@@ -65,8 +65,8 @@ const Empty: React.FC = () => {
         <div className="w-full mb-2">
           <img className="h-40" src={'/icons/undraw_empty_xct9.svg'}/>
         </div>
-        <div className="w-full text-body">
-          No accounts found! Add an account to get started.
+        <div className="w-full text-caption">
+          No accounts found! Create an account to get started.
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@ const AddAccount: React.FC = () => {
             <img className="" src={'/icons/add-24px.svg'}/>
           </div>
           <div className="ml-1 mr-auto text-button uppercase">
-            Add Account
+            Create Account
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
           </div>
         </div>
         <div style={{height: '3rem'}}></div>
-        <div className="text-title font-medium text-grey-dark">
+        <div className="text-title font-medium text-primary">
           {account.name}
         </div>
       </div>

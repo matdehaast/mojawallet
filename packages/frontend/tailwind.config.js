@@ -9,6 +9,7 @@ module.exports = {
         primary: '#025C5E',
         dark: '#023347',
         light: '#B1CDAC',
+        success: '#4caf50',
         error: '#B00020'
       },
       fontSize: {
