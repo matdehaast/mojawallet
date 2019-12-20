@@ -21,12 +21,13 @@ const Account: NextPage<AccountPageProps> = ({ account, transactions }) => {
       <div>
         <div className="fixed top-0 right-0" style={{ zIndex:1 }}>
           <Link href={{ pathname: '/' }}>
-            <div className="mr-5 mt-5">
+            <div className="mr-8 mt-8">
               <img className="h-10" src={'/icons/close-24px-white.svg'}/>
             </div>
           </Link>
         </div>
-        <div className='w-full rounded-b-2xl fixed top-0 elevation-8' style={{height: '16rem', background: 'linear-gradient(#023347, #025C5E, #B1CDAC)', zIndex:0 }}>
+        <div className='flex flex-wrap content-center items-center justify-center  top-0 w-full'>
+        <div className='w-11/12 rounded-2xl fixed top-0 mt-4 mx-auto elevation-8' style={{ height: '16rem', background: 'linear-gradient(#023347, #025C5E, #B1CDAC)', zIndex:0 }}>
           <div className='' style={{textDecoration: 'none', color: 'inherit', zIndex:0, marginTop: '6rem' }}>
             <div className='w-full mx-auto max-w-lg'>
               <div className="flex">
@@ -40,6 +41,7 @@ const Account: NextPage<AccountPageProps> = ({ account, transactions }) => {
               </div>
             </div>
           </div>
+        </div>
         </div>
         <div className="w-full flex mt-4 mb-12 flex-wrap" style={{marginTop: '16rem'}}>
           <Balance balance={account.balance} assetScale={2}/>
@@ -59,8 +61,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
   const cardColour = transaction.amount >= 0 ? "success" : "error"
   const TimeNoSSR = dynamic(() => Promise.resolve(Time), { ssr: false })
   return (
-    <Link href="/account/[account.id]"  as={`/account/${transaction.id}`}>
-      <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-4 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    // <Link href="/account/[account.id]"  as={`/account/${transaction.id}`}>
+      <div className="border border-solid border-material bg-white max-w-xl sm:max-w-xs rounded-xl flex flex-col w-full mt-4 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
         <div className="flex flex-1">
           <div className="flex-1">
             <div className={"text-headline text-" + cardColour}>
@@ -78,7 +80,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
           </div>
         </div>
       </div>
-    </Link>
+    // </Link>
   )
 }
 
@@ -90,7 +92,7 @@ const Time = (props) => {
 
 const Empty: React.FC = () => {
   return (
-    <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-4 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    <div className="border border-solid border-material bg-white  max-w-xl sm:max-w-xs rounded-xl flex flex-col w-full mt-4 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
       <div className="flex flex-wrap content-center text-center mx-10">
         <div className="w-full mb-2">
           <img className="h-40" src={'/icons/undraw_empty_xct9.svg'}/>
@@ -122,7 +124,7 @@ const AddTransaction: React.FC = () => {
 
 const Balance: React.FC<Totals> = ({ balance, assetScale }) => {
   return (
-    <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    <div className="border border-solid border-material bg-white max-w-xl sm:max-w-xs rounded-xl flex flex-col w-full mt-12 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
       <div className="flex flex-wrap text-subheader">
         <div className="w-1/2">
           Balance

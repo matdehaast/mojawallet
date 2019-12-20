@@ -93,7 +93,11 @@ const AddAccount: React.FC = () => {
 const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
   return (
     <Link href="/account/[account.id]"  as={`/account/${account.id}`}>
-      <div className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+      <motion.div
+        className="bg-white max-w-xl sm:max-w-xs rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8"
+        style={{textDecoration: 'none', color: 'inherit'}}
+        whileTap={{ boxShadow: "0px 5px 5px -3px rgba(0,0,0,0.20), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)" }}
+      >
         <div className="flex flex-1">
           <div className="flex-1">
             <div className="text-headline">
@@ -111,7 +115,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
         <div className="text-title font-medium text-primary">
           {account.name}
         </div>
-      </div>
+      </motion.div>
     </Link>
   )
 }
