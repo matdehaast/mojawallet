@@ -14,6 +14,7 @@ import { authorizeQuote } from '../src/services/authorization-service'
 import Knex = require('knex')
 import uuid from 'uuid'
 import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
+import { KnexMojaloopService, MojaloopService } from '../src/services/mojaloop-service'
 
 describe('Authorization Response', () => {
   let server: Server
@@ -21,6 +22,7 @@ describe('Authorization Response', () => {
   let app: Koa
   let knex: Knex
   let accountsService: KnexAccountService
+  let mojaloopService: MojaloopService
   let transactionsService: KnexTransactionService
   let userService: KnexUserService
   let transactionRequestService: KnexTransactionRequestService
@@ -47,6 +49,7 @@ describe('Authorization Response', () => {
     userService = new KnexUserService(knex)
     transactionRequestService = new KnexTransactionRequestService(knex)
     quoteService = new KnexQuoteService(knex)
+    mojaloopService = new KnexMojaloopService(knex)
     hydraApi = {
       introspectToken: async (token) => {
         if (token === 'user1token') {
@@ -79,7 +82,8 @@ describe('Authorization Response', () => {
       hydraApi,
       userService,
       quoteService,
-      mojaloopRequests
+      mojaloopRequests,
+      mojaloopService
     })
     server = app.listen(0)
     // @ts-ignore

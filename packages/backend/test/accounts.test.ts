@@ -11,6 +11,7 @@ import { HydraApi, TokenInfo } from '../src/apis/hydra'
 import Knex = require('knex')
 import { KnexQuoteService } from '../src/services/quote-service'
 import { MojaloopRequests } from "@mojaloop/sdk-standard-components"
+import { KnexMojaloopService, MojaloopService } from '../src/services/mojaloop-service'
 
 describe('Accounts API Test', () => {
   let server: Server
@@ -18,6 +19,7 @@ describe('Accounts API Test', () => {
   let app: Koa
   let knex: Knex
   let accountsService: KnexAccountService
+  let mojaloopService: MojaloopService
   let transactionsService: KnexTransactionService
   let transactionRequestService: KnexTransactionRequestService
   let quoteService: KnexQuoteService
@@ -40,6 +42,7 @@ describe('Accounts API Test', () => {
       }
     })
     accountsService = new KnexAccountService(knex)
+    mojaloopService = new KnexMojaloopService(knex)
     transactionsService = new KnexTransactionService(knex)
     transactionRequestService = new KnexTransactionRequestService(knex)
     userService = new KnexUserService(knex)
@@ -76,7 +79,8 @@ describe('Accounts API Test', () => {
       hydraApi,
       userService,
       quoteService,
-      mojaloopRequests
+      mojaloopRequests,
+      mojaloopService
     })
     server = app.listen(0)
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

@@ -14,6 +14,7 @@ import { authorizeQuote } from '../src/services/authorization-service'
 import Knex = require('knex')
 import uuid from 'uuid'
 import { MojaloopRequests } from "@mojaloop/sdk-standard-components"
+import { KnexMojaloopService, MojaloopService } from '../src/services/mojaloop-service'
 
 jest.mock('../src/services/authorization-service', () => ({
   authorizeQuote: jest.fn()
@@ -28,6 +29,7 @@ describe('Response from switch after a quote is sent', () => {
   let transactionsService: KnexTransactionService
   let userService: KnexUserService
   let transactionRequestService: KnexTransactionRequestService
+  let mojaloopService: MojaloopService
   let quoteService: KnexQuoteService
   let hydraApi: HydraApi
   let validQuote: Quote
@@ -54,6 +56,7 @@ describe('Response from switch after a quote is sent', () => {
     userService = new KnexUserService(knex)
     transactionRequestService = new KnexTransactionRequestService(knex)
     quoteService = new KnexQuoteService(knex)
+    mojaloopService = new KnexMojaloopService(knex)
     hydraApi = {
       introspectToken: async (token) => {
         if (token === 'user1token') {
@@ -86,7 +89,8 @@ describe('Response from switch after a quote is sent', () => {
       hydraApi,
       userService,
       quoteService,
-      mojaloopRequests
+      mojaloopRequests,
+      mojaloopService
     })
     server = app.listen(0)
     // @ts-ignore
@@ -155,7 +159,7 @@ describe('Response from switch after a quote is sent', () => {
   describe('Handling PUT to "/quotes"', () => {
     test('Should return 200 status, store response and initiate Authorization on valid quote response', async () => {
 
-      quoteService.add(validQuote)
+      await quoteService.add(validQuote)
       const response = await axios.put(`http://localhost:${port}/quotes/${validQuote.quoteId}`, validQuoteResponse)
       const retrievedQuote = await knex<MojaQuoteObj>('mojaQuote').where({ quoteId: validQuote.quoteId }).first()
 
@@ -171,7 +175,7 @@ describe('Response from switch after a quote is sent', () => {
 
     test('Should return 400 status and not initiate Authorization on invalid quote response', async () => {
 
-      quoteService.add(validQuote)
+      await quoteService.add(validQuote)
       axios.put(`http://localhost:${port}/quotes/${validQuote.quoteId}`, invalidQuoteResponse)
       .then(response => {
         expect(true).toEqual(false)

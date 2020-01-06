@@ -11,7 +11,7 @@ export async function authorizationResponse (ctx: AccountsAppContext): Promise<v
 
     //TODO Validate authorization
 
-    // If valid kickoff the transfer flow
+    // TODO Begin Transfer
 
   }
 

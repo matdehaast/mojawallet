@@ -23,6 +23,7 @@ import { KnexQuoteService } from './services/quote-service'
 import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
 import Knex from 'knex'
 import { authorizationResponse } from './controllers/authorizationResponse'
+import { MojaloopService } from './services/mojaloop-service'
 
 export type AppConfig = {
   logger: Logger;
@@ -33,6 +34,7 @@ export type AppConfig = {
   hydraApi: HydraApi;
   userService: KnexUserService;
   mojaloopRequests: MojaloopRequests;
+  mojaloopService: MojaloopService;
   knex: Knex
 }
 
@@ -53,6 +55,7 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
     ctx.quotes = appConfig.quoteService
     ctx.hydraApi = appConfig.hydraApi
     ctx.mojaloopRequests = appConfig.mojaloopRequests
+    ctx.mojaloopService = appConfig.mojaloopService
     await next()
   })
 
@@ -89,8 +92,6 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
   publicRouter.put('/quotes/:id', quoteResponse)
 
   publicRouter.put('/authorizations/:id', authorizationResponse)
-
-  // privateRouter.post('/oauth2/clients', createValidationOauth2, storeOauth2)
 
   app.use(publicRouter.routes())
   app.use(privateRouter.routes())
