@@ -1,4 +1,4 @@
-import { AccountsAppContext } from "backend"
+import { AccountsAppContext } from 'backend'
 import { OtpTools } from '../services/otp-service'
 
 export async function create (ctx: AccountsAppContext): Promise<void> {
@@ -19,14 +19,14 @@ export async function create (ctx: AccountsAppContext): Promise<void> {
         ctx.body = otpTools.getOtp()
         ctx.status = 200
       } else {
-        ctx.body = "An active otp already exists for this user"
+        ctx.body = 'An active otp already exists for this user'
         ctx.status = 409
       }
     } else {
       throw new Error('Account does not exist')
-    }  
+    }
   } catch (error) {
-    ctx.status = 400 
+    ctx.status = 400
   }
 }
 
@@ -39,7 +39,7 @@ export async function fetch (ctx: AccountsAppContext): Promise<void> {
     ctx.body = activeOtp
     ctx.status = 200
   } else {
-    ctx.body = "No active otps for this account"
+    ctx.body = 'No active otps for this account'
     ctx.status = 404
   }
 }

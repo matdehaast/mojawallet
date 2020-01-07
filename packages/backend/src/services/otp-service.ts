@@ -1,4 +1,4 @@
-import Knex = require("knex")
+import Knex = require('knex')
 
 export type Otp = {
   userId: string,
@@ -46,7 +46,7 @@ export class KnexOtpService {
 
   async add (otpObject: Otp): Promise<Otp> {
     const insertedOtp = await this._knex<Otp>('mojaOtp').insert(otpObject).returning(['userId', 'accountId', 'expiresAt', 'isUsed', 'otp'])
-    return(insertedOtp[0])
+    return (insertedOtp[0])
   }
 
   async get (userId: string): Promise<Otp[]> {
