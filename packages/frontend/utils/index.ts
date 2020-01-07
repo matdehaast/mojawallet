@@ -36,17 +36,14 @@ export const checkUserOnSignup = async (ctx) => {
   try {
     cookies = parseCookies(ctx)
     if (cookies && cookies.token) {
-      user = await usersService.getUser(cookies.token)
-      if (user) {
-        if (typeof window === 'undefined') {
-          ctx.res.writeHead(302, {
-            Location: '/login'
-          })
-          ctx.res.end()
-          return
-        }
-        window.location.href = '/login'
+      if (typeof window === 'undefined') {
+        ctx.res.writeHead(302, {
+          Location: '/login'
+        })
+        ctx.res.end()
+        return
       }
+      window.location.href = '/login'
     }
   } catch (error) {
     console.log(error)

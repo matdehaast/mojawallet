@@ -3,7 +3,8 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { NextPage } from 'next'
 import { TransactionService } from '../../services/transactions'
-import { TransactionCardProps, AccountPageProps, Totals } from "../../types"
+import { OTPService } from '../../services/otp'
+import { TransactionCardProps, AccountPageProps, Totals, OTPCardProps, CreateOTPCardProps, TimerProps } from "../../types"
 import { formatCurrency, checkUser } from "../../utils"
 import { AccountsService } from '../../services/accounts'
 import moment from 'moment'
@@ -11,8 +12,14 @@ import { motion } from 'framer-motion'
 
 const accountsService = AccountsService()
 const transactionService = TransactionService()
+const otpService = OTPService()
 
-const Account: NextPage<AccountPageProps> = ({ account, transactions }) => {
+const Account: NextPage<AccountPageProps> = ({ account, transactions, otp, user }) => {
+  const [otpState, setOTP] = useState({
+    otp: otp,
+    hasOTP: otp && otp.accountId == account.id,
+    disableOTP: otp && otp.accountId != account.id
+  })
   return (
     <div>
       <Head>
@@ -29,12 +36,10 @@ const Account: NextPage<AccountPageProps> = ({ account, transactions }) => {
                 </div>
               </div>
               <div className="w-full flex my-4 flex-wrap">
-                {/* AddTransaction should Only be displayed when there is no current OTP present. */}
-                <AddTransaction/>
+                { otpState.hasOTP ? <OTP otp={otpState.otp} setOTP={setOTP}/> : otpState.disableOTP ? <DisabledOTP/> : <CreateOTP accountId={account.id} token={user.token} setOTP={setOTP}/> }
                 <Balance balance={account.balance} assetScale={2}/>
                 { transactions.length > 0 ? transactions.map(transaction => <TransactionCard key={'transaction_' + transaction.id} transaction={transaction}/>) : <Empty/>}
               </div>
-              {/* <Timer/> */}
             </div>
         </div>
       </div>
@@ -90,43 +95,55 @@ const Empty: React.FC = () => {
   )
 }
 
-const AddTransaction: React.FC = () => {
-  // TODO: This should trigger a function to create an OTP so that we can display the OTP to the user.
+
+const CreateOTP: React.FC<CreateOTPCardProps> = ({accountId, token, setOTP}) => {
   return (
     <motion.div
-        className="inline-block max-w-xl sm:max-w-xs flex flex-col w-full mt-8 px-6 py-4 mx-8 rounded-xl elevation-4 bg-white hover:elevation-8 active:bg-dark focus:outline-none"
-        onTap={() => {
-          console.log('tapped')
-        }}
-        whileTap={{ boxShadow: "0px 5px 5px -3px rgba(0,0,0,0.20), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)" }}
-      >
-        <div className="flex flex-wrap">
-          <div className="mr-1 ml-auto">
-            <img className="" src={'/icons/add-24px.svg'}/>
-          </div>
-          <div className="ml-1 mr-auto text-button uppercase" style={{ paddingTop: '1px' }}>
-            create otp
-          </div>
-          {/* <Loader/> */}
+      className="inline-block max-w-xl sm:max-w-xs flex flex-col w-full mt-8 px-6 py-4 mx-8 rounded-xl elevation-4 bg-white hover:elevation-8 active:bg-dark focus:outline-none"
+      onTap={async () => {
+        let otp = await otpService.createOTP(accountId + '', token)
+        setOTP({
+          otp: otp,
+          hasOTP: true,
+          disableOTP: false
+        })
+      }}
+      whileTap={{ boxShadow: "0px 5px 5px -3px rgba(0,0,0,0.20), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)" }}
+    >
+      <div className="flex flex-wrap">
+        <div className="mr-1 ml-auto">
+          <img className="" src={'/icons/add-24px.svg'}/>
         </div>
-      </motion.div>
+        <div className="ml-1 mr-auto text-button uppercase" style={{ paddingTop: '1px' }}>
+          create otp
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
-const Loader: React.FC = () => {
+const OTP: React.FC<TimerProps> = ({ otp, setOTP }) => {
   return (
-    <motion.img 
-      className="h-16"
-      src={'/Logo.svg'}
-      animate={{
-        rotate: [720, 0]
-      }}
-      transition={{
-        duration: 1,
-        loop: Infinity,
-        ease: "circInOut"
-      }}
-    />
+    <div className="inline-block max-w-xl sm:max-w-xs flex flex-col w-full mt-8 px-6 py-4 mx-8 rounded-xl elevation-4 bg-white hover:elevation-8 active:bg-dark focus:outline-none">
+      <div className="flex flex-wrap">
+        <div className="w-full text-center text-headline tracking-otp text-primary uppercase my-3 ">
+          { otp.otp }
+        </div>
+        <Timer otp={otp} setOTP={setOTP}/>
+      </div>
+    </div>
+  )
+}
+
+const DisabledOTP: React.FC = () => {
+  return (
+    <div className="inline-block max-w-xl sm:max-w-xs flex flex-col w-full mt-8 px-6 py-4 mx-8 rounded-xl elevation-4 bg-white hover:elevation-8 active:bg-dark focus:outline-none">
+      <div className="flex flex-wrap">
+        <div className="mx-auto ">
+          You already have an active OTP on another account.
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -145,25 +162,37 @@ const Balance: React.FC<Totals> = ({ balance, assetScale }) => {
   )
 }
 
-const Timer: React.FC = () => { // TODO: Update this to us the expireAt of the latest OTP.
-  const expireAt = moment(1578315468000)
+const Timer: React.FC<TimerProps> = ({otp, setOTP}) => {
+  const expireAt = moment(1000 * (otp.expiresAt) || '')
   const calculateTimeLeft = () => {
-    return moment().isAfter(expireAt) ? '' : 'Expires ' + moment().to(expireAt)
+    if (moment().isSameOrBefore(expireAt)) {
+      return 'Expires ' + moment().to(expireAt)
+    }
+    return false
   }
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
   
   useEffect(() => {
-    let interval = setInterval(() => {
-      setTimeLeft(calculateTimeLeft())
+    let interval = setInterval(async () => {
+      let time = calculateTimeLeft()
+      if (time) {
+        setTimeLeft(time)
+      } else {
+        setOTP({
+          otp: null,
+          hasOTP: false,
+          disableOTP: false
+        })
+      }
     }, 1000)
-    return () => { clearInterval(interval) }
+    return () => {
+      clearInterval(interval)
+    }
   })
   return (
-    <div className="flex">
-      <div className="text-caption text-white flex-1 text-base mx-4 px-4">
-        {timeLeft}
-      </div>
+    <div className="text-caption">
+      <span>{timeLeft}</span>
     </div>
   )
 }
@@ -172,7 +201,7 @@ export default Account
 
 Account.getInitialProps = async (ctx) => {
   let id = ctx.query.id
-  let account, transactions
+  let account, transactions, otp
   const user = await checkUser(ctx)
   try {
     account = await accountsService.getAccount(id.toString(), user.token)
@@ -180,5 +209,14 @@ Account.getInitialProps = async (ctx) => {
   } catch(error) {
     console.log(error)
   }
-  return { account: account, transactions: transactions }
+  try {
+    otp = await otpService.getOTP(user.token)
+    if (otp.name == 'HTTPError') {
+      throw otp
+    }
+  } catch (error) {
+    otp = null
+    console.error('Error in getting otp', error)
+  }
+  return { account: account, transactions: transactions, otp: otp, user: user }
 }
