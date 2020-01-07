@@ -1,7 +1,7 @@
 import { AccountsAppContext } from '../index'
 
 export async function authorizationResponse (ctx: AccountsAppContext): Promise<void> {
-  const { transactionRequests } = ctx
+  const { transactionRequests, mojaloopService } = ctx
   const { id } = ctx.params
   const { body } = ctx.request
 
@@ -10,8 +10,14 @@ export async function authorizationResponse (ctx: AccountsAppContext): Promise<v
   if(transactionRequest) {
 
     //TODO Validate authorization
+    const isValid = await mojaloopService.validateTransactionOTP(transactionRequest.transactionRequestId, body.authenticationInfo.authenticationValue)
 
-    // TODO Begin Transfer
+    // TODO Begin Transfer if Valid OTP else fail
+    if(isValid) {
+      await mojaloopService.initiateTransfer(transactionRequest.transactionRequestId)
+    } else {
+
+    }
 
   }
 
