@@ -10,6 +10,7 @@ import { createApp } from './app'
 import { KnexQuoteService } from './services/quote-service'
 import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
 import Knex = require('knex')
+import { KnexOtpService } from './services/otp-service'
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
@@ -22,6 +23,7 @@ export interface AccountsAppContext extends Context {
   transactions: KnexTransactionService;
   transactionRequests: KnexTransactionRequestService;
   quotes: KnexQuoteService;
+  otp: KnexOtpService;
   logger: Logger;
   mojaloopRequests: MojaloopRequests
   knex: Knex
@@ -47,6 +49,7 @@ const transactionsService = new KnexTransactionService(knex)
 const userService = new KnexUserService(knex)
 const transactionRequestService = new KnexTransactionRequestService(knex)
 const quoteService = new KnexQuoteService(knex)
+const otpService = new KnexOtpService(knex)
 
 const mojaloopRequests = new MojaloopRequests({
   dfspId: DFSP_ID,
@@ -66,6 +69,7 @@ const app = createApp({
   userService,
   transactionRequestService,
   quoteService,
+  otpService,
   mojaloopRequests
 })
 
