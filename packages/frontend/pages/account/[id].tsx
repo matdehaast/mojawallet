@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import { NextPage } from 'next'
 import { TransactionService } from '../../services/transactions'
 import { TransactionCardProps, AccountPageProps, Totals } from "../../types"
-import Link from 'next/link'
 import { formatCurrency, checkUser } from "../../utils"
 import { AccountsService } from '../../services/accounts'
 import moment from 'moment'
@@ -30,14 +29,12 @@ const Account: NextPage<AccountPageProps> = ({ account, transactions }) => {
                 </div>
               </div>
               <div className="w-full flex my-4 flex-wrap">
-            <AddTransaction/>
-            {/* <div className="text-white text-subheader flex-1 text-base mx-4 px-4 py-4">
-              Transactions
-            </div> */}
+                {/* AddTransaction should Only be displayed when there is no current OTP present. */}
+                <AddTransaction/>
                 <Balance balance={account.balance} assetScale={2}/>
                 { transactions.length > 0 ? transactions.map(transaction => <TransactionCard key={'transaction_' + transaction.id} transaction={transaction}/>) : <Empty/>}
               </div>
-              <Timer/>
+              {/* <Timer/> */}
             </div>
         </div>
       </div>
@@ -96,19 +93,23 @@ const Empty: React.FC = () => {
 const AddTransaction: React.FC = () => {
   // TODO: This should trigger a function to create an OTP so that we can display the OTP to the user.
   return (
-    // <Link href={{ pathname: '/create/transaction' }}>
-      <div className="bg-white max-w-xl hover:bg-grey-lightest text-grey-darkest sm:max-w-xs font-semibold rounded-xl elevation-4 flex flex-col w-full mt-8 px-6 py-4 mx-8" style={{textDecoration: 'none', color: 'inherit'}}>
+    <motion.div
+        className="inline-block max-w-xl sm:max-w-xs flex flex-col w-full mt-8 px-6 py-4 mx-8 rounded-xl elevation-2 bg-white hover:elevation-8 active:bg-dark focus:outline-none"
+        onTap={() => {
+          console.log('tapped')
+        }}
+        whileTap={{ boxShadow: "0px 5px 5px -3px rgba(0,0,0,0.20), 0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12)" }}
+      >
         <div className="flex flex-wrap">
           <div className="mr-1 ml-auto">
             <img className="" src={'/icons/add-24px.svg'}/>
           </div>
-          <div className="ml-1 mr-auto text-button uppercase">
+          <div className="ml-1 mr-auto text-button uppercase" style={{ paddingTop: '1px' }}>
             create otp
           </div>
           {/* <Loader/> */}
         </div>
-      </div>
-    // </Link>
+      </motion.div>
   )
 }
 
