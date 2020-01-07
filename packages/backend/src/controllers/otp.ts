@@ -1,4 +1,4 @@
-import { AccountsAppContext } from 'backend'
+import { AccountsAppContext } from '../index'
 import { OtpTools } from '../services/otp-service'
 
 export async function create (ctx: AccountsAppContext): Promise<void> {
