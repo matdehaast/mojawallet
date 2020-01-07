@@ -122,7 +122,7 @@ describe('Tests for the otp endpoints', () => {
       if (retrievedOtp) {
         expect(response.status).toEqual(200)
         expect(retrievedOtp.isUsed).toBeFalsy()
-        expect(retrievedOtp.expiresAt).toBeGreaterThan(new Date(Date.now()).getTime())
+        expect(retrievedOtp.expiresAt).toBeGreaterThan(Math.floor((new Date(Date.now()).getTime()) / 1000))
         expect(retrievedOtp.otp).toMatch(new RegExp(/^[0-9]{4}$/))
       } else {
         expect(true).toEqual(false)
@@ -188,15 +188,12 @@ describe('Tests for the otp endpoints', () => {
       const response = await axios.get(
         `http://localhost:${port}/otp`,
         { headers: { authorization: 'Bearer user1token' } }
-      ).catch(error => {
-        expect(error.response).toEqual(401)
-        expect(true).toEqual(false)
-      })
+      )
 
       if (response) {
         expect(response.status).toEqual(200)
         expect(response.data.isUsed).toBeFalsy()
-        expect(response.data.expiresAt).toBeGreaterThan(new Date(Date.now()).getTime())
+        expect(response.data.expiresAt).toBeGreaterThan(Math.floor((new Date(Date.now()).getTime()) / 1000))
         expect(response.data.otp).toMatch(new RegExp(/^[0-9]{4}$/))
       } else {
         expect(true).toEqual(false)

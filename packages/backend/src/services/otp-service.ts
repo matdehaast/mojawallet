@@ -29,7 +29,7 @@ export class OtpTools {
   }
 
   private genExpiry (): number {
-    const expiry = (new Date(Date.now() + (1000 * 60 * 5))).getTime()
+    const expiry = Math.floor(((new Date(Date.now() + (1000 * 60 * 5))).getTime()) / 1000)
     return (expiry)
   }
 
@@ -61,7 +61,7 @@ export class KnexOtpService {
         userId,
         isUsed: false
       })
-      .andWhere('expiresAt', '>', Date.now())
+      .andWhere('expiresAt', '>', Math.floor(Date.now() / 1000))
       .first()
     return (retrievedOtp)
   }

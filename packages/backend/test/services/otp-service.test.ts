@@ -64,7 +64,7 @@ describe('Otp Service', () => {
       await knex('mojaOtp').insert({
         userId: '0123456789',
         accountId: 'accountId',
-        expiresAt: Date.now() + (5 * 1000 * 60),
+        expiresAt: Math.floor((Date.now() + (5 * 1000 * 60)) / 1000),
         isUsed: false,
         otp: '1234'
       })
@@ -72,7 +72,7 @@ describe('Otp Service', () => {
       await knex('mojaOtp').insert({
         userId: '1111111111',
         accountId: 'accountId',
-        expiresAt: Date.now() + (5 * 1000 * 60),
+        expiresAt: Math.floor((Date.now() + (5 * 1000 * 60)) / 1000),
         isUsed: true,
         otp: '1234'
       })
@@ -95,7 +95,7 @@ describe('Otp Service', () => {
 
       expect(generatedOtpObject).toBeDefined()
       expect(generatedOtpObject.isUsed).toEqual(false)
-      expect(generatedOtpObject.expiresAt).toBeGreaterThan(new Date(Date.now()).getTime())
+      expect(generatedOtpObject.expiresAt).toBeGreaterThan(Math.floor((new Date(Date.now()).getTime()) / 1000))
       expect(generatedOtpObject.otp).toMatch(new RegExp(/^[0-9]{4}$/))
     })
   })
