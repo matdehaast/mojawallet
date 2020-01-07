@@ -15,7 +15,7 @@ export const OTPService = (authErrorCallback?: () => void) => {
   return {
     getOTP: async (authToken: string) => {
       const url = new URL('otp', USERS_API_URL)
-      return ky.get(url.toString(), { headers: { authorization: `Bearer ${authToken}` } }).then(resp => resp.json()).catch(error => { handleError(error.response.status, authErrorCallback); return error })
+      return ky.get(url.toString(), { headers: { authorization: `Bearer ${authToken}` } }).then(resp => resp.json()).catch(error => { handleError(error.response.status, authErrorCallback); throw error })
     },
     createOTP: async (accountId: string, authToken: string) => {
       const url = new URL('otp', USERS_API_URL)

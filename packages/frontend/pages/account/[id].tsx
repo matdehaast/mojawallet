@@ -211,9 +211,6 @@ Account.getInitialProps = async (ctx) => {
   }
   try {
     otp = await otpService.getOTP(user.token)
-    if (otp.name == 'HTTPError') {
-      throw otp
-    }
   } catch (error) {
     otp = null
     console.error('Error in getting otp', error)
