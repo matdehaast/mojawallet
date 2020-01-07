@@ -2,7 +2,6 @@ import { AccountsAppContext } from '../index'
 import { QuoteTools } from '../services/quote-service'
 import { mojaResponseService } from '../services/mojaResponseService'
 import { TransactionRequest } from '../services/transaction-request-service'
-import { KnexUserService, User } from '../services/user-service'
 
 export async function create (ctx: AccountsAppContext): Promise<void> {
   const { transactionRequests, quotes, users } = ctx
@@ -12,7 +11,7 @@ export async function create (ctx: AccountsAppContext): Promise<void> {
   const user = await users.getByUsername(payerUserName)
 
   try {
-    await transactionRequests.create( body, user.id)
+    await transactionRequests.create(body, user.id)
 
     // potentially change to a queing system for asynchronous responses to avoid unhandled promises
     mojaResponseService.putResponse(
