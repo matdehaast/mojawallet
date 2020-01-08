@@ -10,8 +10,8 @@ import { createApp } from './app'
 import { KnexQuoteService } from './services/quote-service'
 import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
 import { KnexOtpService } from './services/otp-service'
-import Knex = require('knex')
 import { KnexMojaloopService, MojaloopService } from './services/mojaloop-service'
+import Knex = require('knex')
 const logger = createLogger()
 logger.level = process.env.LOG_LEVEL || 'info'
 
