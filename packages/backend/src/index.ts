@@ -61,7 +61,7 @@ const mojaloopRequests = new MojaloopRequests({
   peerEndpoint: '',
   tls: { outbound: { mutualTLS: { enabled: false } } }
 })
-const mojaloopService = new KnexMojaloopService(knex, mojaloopRequests)
+const mojaloopService = new KnexMojaloopService(knex, mojaloopRequests, otpService)
 
 const app = createApp({
   knex,
