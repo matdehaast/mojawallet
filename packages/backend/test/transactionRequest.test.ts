@@ -31,7 +31,7 @@ describe('Transaction Request Test', () => {
       payer: {
         partyIdInfo: {
           partyIdType: 'MSISDN',
-          partyIdentifier: 'party2'
+          partyIdentifier: '+27123456789'
         }
       },
       amount: {
@@ -55,7 +55,7 @@ describe('Transaction Request Test', () => {
       payer: {
         partyIdInfo: {
           partyIdType: 'MSISDN',
-          partyIdentifier: 'party2'
+          partyIdentifier: '+27123456789'
         }
       },
       amount: {
@@ -72,6 +72,10 @@ describe('Transaction Request Test', () => {
 
   beforeEach(async () => {
     await appContainer.knex.migrate.latest()
+    await appContainer.userService.store({
+      username: '+27123456789',
+      password: 'password'
+    })
   })
 
   afterEach(async () => {
@@ -91,6 +95,7 @@ describe('Transaction Request Test', () => {
       if (storedRequest) {
         expect(response.status).toEqual(200)
         expect(storedRequest.transactionRequestId).toEqual(validRequest.transactionRequestId)
+        expect(storedRequest.userId).toEqual(1)
         expect(mojaResponseService.putResponse).toHaveBeenCalledWith({
           transactionRequestState: 'RECEIVED'
         }, validRequest.transactionRequestId)
