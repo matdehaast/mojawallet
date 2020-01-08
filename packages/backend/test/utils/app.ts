@@ -50,8 +50,8 @@ export const createTestApp = (): TestAppContainer => {
   const userService = new KnexUserService(knex)
   const transactionRequestService = new KnexTransactionRequestService(knex)
   const quoteService = new KnexQuoteService(knex)
-  const mojaloopService = new KnexMojaloopService(knex, mojaloopRequests)
   const otpService = new KnexOtpService(knex)
+  const mojaloopService = new KnexMojaloopService(knex, mojaloopRequests, otpService)
   const hydraApi = {
     introspectToken: async (token) => {
       if (token === 'user1token') {

@@ -1,5 +1,8 @@
 import Knex from 'knex'
 import { MojaloopRequests, PostTransferBody } from '@mojaloop/sdk-standard-components'
+import { KnexOtpService } from './otp-service'
+import { StoredRequest } from './transaction-request-service'
+import { val } from 'objection'
 
 export interface MojaloopService {
   getAuthorization: (transactionRequestId: string) => Promise<void>
@@ -10,10 +13,12 @@ export interface MojaloopService {
 export class KnexMojaloopService implements MojaloopService {
   private _knex: Knex
   private _mojaloopRequests: MojaloopRequests
+  private _otpService: KnexOtpService
 
-  constructor(knex: Knex, mojaloopRequests: MojaloopRequests) {
+  constructor(knex: Knex, mojaloopRequests: MojaloopRequests, otpService: KnexOtpService) {
     this._knex = knex
     this._mojaloopRequests = mojaloopRequests
+    this._otpService = otpService
   }
 
   // Initiate the GET request to the Mojaloop Switch
@@ -22,7 +27,20 @@ export class KnexMojaloopService implements MojaloopService {
   }
 
   async validateTransactionOTP (transactionRequestId: string, OTP: string): Promise<boolean> {
-    return true
+
+    const transactionRequest = await this._knex<StoredRequest>('mojaTransactionRequest')
+      .where({ transactionRequestId })
+      .first()
+
+    if(transactionRequest) {
+      const validOtp = await this._otpService.getActiveOtp(transactionRequest.userId.toString())
+
+      if(validOtp) {
+        return validOtp.otp === OTP
+      }
+    }
+
+    return false
   }
 
   async initiateTransfer(transactionRequestId: string) : Promise<void> {
