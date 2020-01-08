@@ -65,7 +65,7 @@ describe('Authorization Response', () => {
           initiator: 'PAYER',
           initiatorType: 'CONSUMER'
         }
-      })
+      }, 1)
 
       const response = await axios.put(`http://localhost:${appContainer.port}/authorizations/ca919568-e559-42a8-b763-1be22179decc`, {
         authenticationInfo: {

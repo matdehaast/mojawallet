@@ -11,6 +11,7 @@ import { MojaloopRequests } from "@mojaloop/sdk-standard-components"
 import Knex from "knex"
 import { createApp } from '../../src/app'
 import createLogger from 'pino'
+import { KnexOtpService } from '../../src/services/otp-service'
 
 export type TestAppContainer = {
   server: Server,
@@ -25,6 +26,7 @@ export type TestAppContainer = {
   quoteService: KnexQuoteService
   hydraApi: HydraApi
   mojaloopRequests: MojaloopRequests
+  otpService: KnexOtpService
 }
 
 
@@ -49,6 +51,7 @@ export const createTestApp = (): TestAppContainer => {
   const transactionRequestService = new KnexTransactionRequestService(knex)
   const quoteService = new KnexQuoteService(knex)
   const mojaloopService = new KnexMojaloopService(knex, mojaloopRequests)
+  const otpService = new KnexOtpService(knex)
   const hydraApi = {
     introspectToken: async (token) => {
       if (token === 'user1token') {
@@ -82,7 +85,8 @@ export const createTestApp = (): TestAppContainer => {
     userService,
     quoteService,
     mojaloopRequests,
-    mojaloopService
+    mojaloopService,
+    otpService
   })
   const server = app.listen(0)
   // @ts-ignore
@@ -100,6 +104,7 @@ export const createTestApp = (): TestAppContainer => {
     transactionRequestService,
     quoteService,
     hydraApi,
-    mojaloopRequests
+    mojaloopRequests,
+    otpService
   }
 }
