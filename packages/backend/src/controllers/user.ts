@@ -31,7 +31,7 @@ export const createUserSchema = Joi.object({
 })
 
 export async function store (ctx: AccountsAppContext): Promise<void> {
-  const { users, mojaloopRequests } = ctx
+  const { users, mojaloopRequests, logger } = ctx
   const { username, password } = ctx.request.body
 
   ctx.logger.debug(`Creating user ${username}`)
@@ -49,6 +49,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
         }
       })
     }
+    logger.info('Unable to store user', ctx)
     ctx.status = 422
     return
   }
@@ -63,6 +64,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
         }
       ]
     }
+    logger.info('Invalid username', ctx)
     ctx.status = 422
     return
   }
@@ -107,7 +109,7 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
 
     await mojaloopRequests.postParticipants({
       requestId: v4(),
-      partyList: [ {
+      partyList: [{
         partyIdentifier: username,
         partyIdType: 'MSISDN',
         fspId: DFSP_ID
