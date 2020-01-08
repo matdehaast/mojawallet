@@ -95,7 +95,7 @@ describe('Transaction Request Test', () => {
           transactionRequestState: 'RECEIVED'
         }, validRequest.transactionRequestId)
       } else {
-        expect(storedRequest).toBeDefined()
+        fail('Transaction Request not found')
       }
     })
 

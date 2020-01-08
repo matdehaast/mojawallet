@@ -1,6 +1,6 @@
 import { AccountsAppContext } from '../index'
 
-export async function authorizationResponse (ctx: AccountsAppContext): Promise<void> {
+export async function authorizations (ctx: AccountsAppContext): Promise<void> {
   const { transactionRequests, mojaloopService } = ctx
   const { id } = ctx.params
   const { body } = ctx.request

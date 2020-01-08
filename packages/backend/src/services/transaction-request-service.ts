@@ -181,14 +181,17 @@ export class KnexTransactionRequestService {
 
   async create (transactionRequest: TransactionRequest): Promise<StoredRequest> {
     const transactionRequestTools = new TransactionRequestTools(transactionRequest)
+
     const insertedRequest = await this._knex<StoredRequest>('mojaTransactionRequest').insert({
       transactionRequestId: transactionRequestTools.getRequestId(),
       serializedRequest: transactionRequestTools.getSerializedRequest(),
       valid: transactionRequestTools.getValidStatus()
     }).returning(['id', 'transactionRequestId', 'serializedRequest', 'valid']) // returning not supported by sqlite3
+
     if (!insertedRequest) {
       throw new Error('Inserted request returned null')
     }
+
     return (insertedRequest[0])
   }
 

@@ -22,7 +22,7 @@ import { KnexTransactionRequestService } from './services/transaction-request-se
 import { KnexQuoteService } from './services/quote-service'
 import { MojaloopRequests } from '@mojaloop/sdk-standard-components'
 import Knex from 'knex'
-import { authorizationResponse } from './controllers/authorizationResponse'
+import { authorizations } from './controllers/authorizations'
 import { MojaloopService } from './services/mojaloop-service'
 
 export type AppConfig = {
@@ -91,7 +91,7 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
   publicRouter.post('/transactionRequests', createTransactionRequest)
   publicRouter.put('/quotes/:id', quoteResponse)
 
-  publicRouter.put('/authorizations/:id', authorizationResponse)
+  publicRouter.put('/authorizations/:id', authorizations)
 
   app.use(publicRouter.routes())
   app.use(privateRouter.routes())
