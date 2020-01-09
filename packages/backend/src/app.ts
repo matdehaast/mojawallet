@@ -65,7 +65,7 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
   })
 
   app.use(async (ctx, next) => {
-    ctx.logger.info(ctx.request.method + ' ' + ctx.request.url, {body : ctx.request.body, header: ctx.request.header})
+    ctx.logger.info(ctx.request.method + ' ' + ctx.request.url, { body: ctx.request.body, header: ctx.request.header })
     await next()
   })
 
