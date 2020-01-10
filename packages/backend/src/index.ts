@@ -18,7 +18,7 @@ logger.level = process.env.LOG_LEVEL || 'info'
 const PORT = process.env.PORT || 3001
 const KNEX_CLIENT = process.env.KNEX_CLIENT || 'sqlite3'
 const DFSP_ID = process.env.DFSP_ID || 'mojawallet'
-const ALS_ENDPOINT = process.env.ALS_ENDPOINT || 'http://account-lookup-service.iso-demo.openafrica.network'
+const ALS_ENDPOINT = process.env.ALS_ENDPOINT || 'account-lookup-service.iso-demo.openafrica.network'
 
 export interface AccountsAppContext extends Context {
   accounts: KnexAccountService;
