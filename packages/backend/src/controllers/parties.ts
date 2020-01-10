@@ -24,11 +24,11 @@ export async function show (ctx: AccountsAppContext): Promise<void> {
 export async function successCallback (ctx: AccountsAppContext): Promise<void> {
   const { logger } = ctx
   logger.info('sending to parties successful', ctx.body)
-  ctx.status = 200;
+  ctx.status = 200
 }
 
 export async function errorCallback (ctx: AccountsAppContext): Promise<void> {
   const { logger } = ctx
   logger.info('Sending to parties failed', ctx.body)
-  ctx.status = 200;
+  ctx.status = 200
 }
