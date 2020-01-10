@@ -61,8 +61,13 @@ const mojaloopRequests = new MojaloopRequests({
   logger: console,
   peerEndpoint: ALS_ENDPOINT,
   alsEndpoint: ALS_ENDPOINT,
-  tls: { outbound: { mutualTLS: { enabled: false } } }
+  tls: { outbound: { mutualTLS: { enabled: false } } },
+  // TODO: Hack until fix is pushed
+  wso2Auth: {
+    getToken: () => null
+  }
 })
+
 const mojaloopService = new KnexMojaloopService(knex, mojaloopRequests, otpService)
 
 const app = createApp({
