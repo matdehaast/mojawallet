@@ -5,6 +5,6 @@ export async function store (ctx: AccountsAppContext): Promise<void> {
   const { id } = ctx.params
   const { body } = ctx.request
 
-  logger.info('Received Quote Error Response', {quoteId: id, body})
+  logger.info('Received Quote Error Response', { quoteId: id, body })
   ctx.status = 200
 }
