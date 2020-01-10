@@ -108,6 +108,14 @@ export function createApp (appConfig: AppConfig): Koa<any, AccountsAppContext> {
 
   publicRouter.get('/parties/msisdn/:msisdnNumber', showParty)
 
+  // confirm success of getting a party
+  publicRouter.put('/parties/msisdn/:msisdnNumber', successPartyCallback)
+  publicRouter.put('/parties/msisdn/:msisdnNumber/error', errorPartyCallback)
+
+  // confirm success of adding participants to als
+  publicRouter.put('/participants/:id', successParticipantCallback)
+  publicRouter.put('/participants/:id/error', errorParticipantCallback)
+
   // privateRouter.post('/oauth2/clients', createValidationOauth2, storeOauth2)
   publicRouter.put('/authorizations/:id', authorizations)
 
