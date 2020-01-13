@@ -79,6 +79,5 @@ export class KnexOtpService {
         isUsed: otpProps.isUsed,
         expiresAt: otpProps.expiresAt
       })
-    return
   }
 }
