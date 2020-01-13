@@ -47,7 +47,7 @@ describe('Faucet API Test', () => {
       })
 
       const acc = await appContainer.accountsService.get(account.id)
-      expect(acc.balance.toString()).toBe('100000000')
+      expect(acc.balance.toString()).toBe('10000')
     })
 
     test('User cant add a transaction for an account that\'s not theirs', async () => {
