@@ -31,8 +31,7 @@ export async function quoteResponse (ctx: AccountsAppContext): Promise<void> {
       const transactionRequest = await ctx.transactionRequests.getByTransactionId(retrievedQuote.transactionId)
       ctx.logger.info('quoteResponse transactionRequest', transactionRequest)
       const quoteResponseTools = new QuoteResponseTool(body, id)
-      const addedResponse = await quotesResponse.store(quoteResponseTools.getQuoteResponseProps())
-      console.log(addedResponse)
+      await quotesResponse.store(quoteResponseTools.getQuoteResponseProps())
       if (transactionRequest) {
         const auth = await mojaloopService.getAuthorization(transactionRequest.transactionRequestId, body.transferAmount)
         ctx.logger.info('quoteResponse auth', auth)
@@ -43,5 +42,3 @@ export async function quoteResponse (ctx: AccountsAppContext): Promise<void> {
     }
   }
 }
-
-

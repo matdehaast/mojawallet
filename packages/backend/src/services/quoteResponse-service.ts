@@ -126,7 +126,7 @@ export class ErrorQuoteResponseTool {
         errorCode: Joi.string().regex(/^[1-9]\d{3}$/).required(),
         errorDescription: Joi.string().max(128).required(),
         extensionList: extensionListSchema
-      }).required(),
+      }).required()
     })
 
     return Joi.validate(quoteResponse, ErrorQuoteResponseSchema)
@@ -148,38 +148,31 @@ export class KnexQuotesResponse {
   }
 
   async store (quoteResponseProps: QuoteResponseProps): Promise<QuoteResponseProps> {
-    try {
-      let storedObject: any = JSON.parse(JSON.stringify(quoteResponseProps))
-      if (quoteResponseProps.transferAmount)
-        storedObject.transferAmount = JSON.stringify(storedObject.transferAmount)
-      if (quoteResponseProps.error)
-        storedObject.error = JSON.stringify(storedObject.error)
-      console.log(storedObject)
-      const insertedQuoteResponseId = await this._knex<QuoteResponseProps>('mojaQuotesResponse')
+    const storedObject: any = JSON.parse(JSON.stringify(quoteResponseProps))
+    if (quoteResponseProps.transferAmount) { storedObject.transferAmount = JSON.stringify(storedObject.transferAmount) }
+    if (quoteResponseProps.error) { storedObject.error = JSON.stringify(storedObject.error) }
+    console.log(storedObject)
+    const insertedQuoteResponseId = await this._knex<QuoteResponseProps>('mojaQuotesResponse')
       .insert(storedObject)
       .then(result => result[0])
 
-      const insertedQuoteResponse = await this._knex<QuoteResponseProps>('mojaQuotesResponse')
+    const insertedQuoteResponse = await this._knex<QuoteResponseProps>('mojaQuotesResponse')
       .where('id', insertedQuoteResponseId).first()
 
-      if (!insertedQuoteResponse) {
-        throw new Error('Error inserting quote response')
-      }
-      insertedQuoteResponse.transferAmount = JSON.parse(insertedQuoteResponse.transferAmount as any)
-      insertedQuoteResponse.error = JSON.parse(insertedQuoteResponse.error as any)
-
-      console.log(insertedQuoteResponse)
-      
-      return insertedQuoteResponse
-    } catch (error) {
-      throw error
+    if (!insertedQuoteResponse) {
+      throw new Error('Error inserting quote response')
     }
+    insertedQuoteResponse.transferAmount = JSON.parse(insertedQuoteResponse.transferAmount as any)
+    insertedQuoteResponse.error = JSON.parse(insertedQuoteResponse.error as any)
+
+    console.log(insertedQuoteResponse)
+
+    return insertedQuoteResponse
   }
 
   async get (quoteId: string): Promise<QuoteResponseProps[]> {
-    try {
     const retrievedQuoteResponses = await this._knex<QuoteResponseProps>('mojaQuotesResponse')
-    .where({ quoteId })
+      .where({ quoteId })
 
     retrievedQuoteResponses.forEach((value, index) => {
       retrievedQuoteResponses[index].transferAmount = JSON.parse(value.transferAmount as any)
@@ -187,9 +180,5 @@ export class KnexQuotesResponse {
     })
 
     return (retrievedQuoteResponses)
-    } catch (error) {
-      throw error
-    }
   }
-
 }

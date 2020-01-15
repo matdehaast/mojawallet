@@ -137,7 +137,6 @@ describe('Quote response service tests', () => {
         generatedResponse = await quoteResponseTool.getQuoteResponseProps()
         expect(generatedResponse).toEqual(quoteResponseProps)
       } catch (error) {
-        console.log(error)
         expect(error).toBeUndefined()
       }
       expect(authorizeQuote).toBeCalledTimes(1)
@@ -150,7 +149,6 @@ describe('Quote response service tests', () => {
         const errorQuoteResponseTool = new ErrorQuoteResponseTool(validErrorQuoteResponse, validQuote.quoteId)
         generatedResponse = await errorQuoteResponseTool.getQuoteResponseProps()
       } catch (error) {
-        console.log(error)
         expect(error).toBeUndefined()
       }
     })

@@ -68,26 +68,26 @@ export class KnexQuoteService {
   }
 
   async add (quote: QuotesPostRequest): Promise<MojaQuoteObj> {
-    let quoteCopy: QuotesPostRequest = JSON.parse(JSON.stringify(quote))
+    const quoteCopy: QuotesPostRequest = JSON.parse(JSON.stringify(quote))
     const storedObj: any = {
       quoteId: quoteCopy.quoteId,
       transactionId: quoteCopy.transactionId,
-      transactionRequestId: quoteCopy.transactionRequestId? quoteCopy.transactionRequestId : null,
+      transactionRequestId: quoteCopy.transactionRequestId ? quoteCopy.transactionRequestId : null,
       payee: JSON.stringify(quoteCopy.payee),
       payer: JSON.stringify(quoteCopy.payer),
       amountType: quoteCopy.amountType,
       amount: JSON.stringify(quoteCopy.amount),
-      fees: quoteCopy.fees? JSON.stringify(quoteCopy.fees) : null,
+      fees: quoteCopy.fees ? JSON.stringify(quoteCopy.fees) : null,
       transactionType: JSON.stringify(quoteCopy.transactionType),
       serializedQuote: JSON.stringify(quote)
     }
 
     const insertedQuoteId = await this._knex('mojaQuote')
-    .insert(storedObj)
-    .then(result => result[0])
+      .insert(storedObj)
+      .then(result => result[0])
 
     const insertedQuote = await this._knex('mojaQuote')
-    .where('id', insertedQuoteId).first()
+      .where('id', insertedQuoteId).first()
 
     // console.log(insertedQuote.payee.partyIdInfo)
 
