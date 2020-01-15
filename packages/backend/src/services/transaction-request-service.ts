@@ -118,8 +118,9 @@ export class KnexTransactionRequestService {
   }
 
   async create (transactionRequest: TransactionRequestsPostRequest, userId: number): Promise<TransactionRequestProps> {
-    if (isValid(transactionRequest).error) {
-      throw new Error(isValid(transactionRequest).error.message)
+    const validationError = isValid(transactionRequest).error
+    if (validationError) {
+      throw new Error(validationError.message)
     }
 
     const transactionRequestCopy = cloneDeep(transactionRequest)
