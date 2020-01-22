@@ -1,5 +1,5 @@
 import { v4 } from 'uuid'
-import { AccountsAppContext } from 'backend'
+import { AccountsAppContext } from '../index'
 
 const DFSP_ID = process.env.DFSP_ID || 'mojawallet'
 
