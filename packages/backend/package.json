@@ -41,7 +41,7 @@
   "dependencies": {
     "@mojaloop/sdk-standard-components": "8.6.8",
     "@types/lodash": "^4.14.149",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bcrypt": "3.0.6",
     "got": "^10.2.2",
     "joi": "^14.3.1",
